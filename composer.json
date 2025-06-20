@@ -1,16 +1,17 @@
 {
-    "name": "nunomaduro/skeleton-php",
-    "description": "A skeleton repository for my packages",
-    "keywords": ["php", "skeleton", "package"],
+    "name": "dij-digital/langfuse-php",
+    "description": "A langfuse wrapper for PHP",
+    "keywords": ["php", "langfuse"],
     "license": "MIT",
     "authors": [
         {
-            "name": "Nuno Maduro",
-            "email": "enunomaduro@gmail.com"
+            "name": "Tycho Engberink",
+            "email": "tycho.engberink@dij.digital"
         }
     ],
     "require": {
-        "php": "^8.4.0"
+        "php": "^8.4.0",
+        "guzzlehttp/guzzle": "^8.0.0"
     },
     "require-dev": {
         "laravel/pint": "^1.22.1",
@@ -23,7 +24,7 @@
     },
     "autoload": {
         "psr-4": {
-            "NunoMaduro\\SkeletonPhp\\": "src/"
+            "DIJ\\Langfuse\\": "src/"
         }
     },
     "autoload-dev": {
