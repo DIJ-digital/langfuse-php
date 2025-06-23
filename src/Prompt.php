@@ -125,4 +125,67 @@ class Prompt
 
         return $data;
     }
+
+    /**
+     * @param  ($type is PromptType::TEXT ? string : array<int, array{role: string, content: string}>)  $prompt  ,
+     * @param  array<int, string>|null  $config
+     * @param  array<int, string>|null  $tags
+     * @return ($type is PromptType::TEXT ? TextPromptResponse : ChatPromptResponse)
+     *
+     * @throws JsonException
+     */
+    public function create(string $promptName, string|array $prompt, PromptType $type, ?string $label = null, ?array $config = null, ?array $tags = null, ?string $commitMessage = null): TextPromptResponse|ChatPromptResponse
+    {
+        $response = $this->transporter->postJson('/api/public/v2/prompts', [
+            'name' => $promptName,
+            'prompt' => $prompt,
+            'type' => $type->value,
+            'config' => $config,
+            'tags' => $tags,
+            'label' => $label,
+            'commitMessage' => $commitMessage,
+        ]);
+
+        $data = json_decode($response->getBody()->getContents(), true, flags: JSON_THROW_ON_ERROR);
+
+        if ($type === PromptType::TEXT) {
+            /** @var array{
+             * id: string,
+             * name: string,
+             * prompt: string,
+             * type: string,
+             * config: array<int, string>,
+             * tags: array<int, string>,
+             * projectId: string,
+             * createdBy: string,
+             * createdAt: string,
+             * updatedAt: string,
+             * version: int,
+             * labels: array<int,string>,
+             * isActive: string|null,
+             * commitMessage: string|null,
+             * resolutionGraph: null,
+             * } $data */
+            return TextPromptResponse::fromArray($data);
+        }
+
+        /** @var array{
+         * id: string,
+         * name: string,
+         * prompt: array<int, array{role: string, content: string}>,
+         * type: string,
+         * config: array<int, string>,
+         * tags: array<int, string>,
+         * projectId: string,
+         * createdBy: string,
+         * createdAt: string,
+         * updatedAt: string,
+         * version: int,
+         * labels: array<int,string>,
+         * isActive: string|null,
+         * commitMessage: string|null,
+         * resolutionGraph: null,
+         * } $data */
+        return ChatPromptResponse::fromArray($data);
+    }
 }

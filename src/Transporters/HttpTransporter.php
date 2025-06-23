@@ -62,4 +62,9 @@ class HttpTransporter implements TransporterInterface
     {
         return $this->request('POST', $uri, $options);
     }
+
+    public function postJson(string $uri, array $data = [], array $options = []): ResponseInterface
+    {
+        return $this->request('POST', $uri, array_merge(['body' => json_encode($data)], array_merge(['headers' => ['Content-Type' => 'application/json']], $options)));
+    }
 }

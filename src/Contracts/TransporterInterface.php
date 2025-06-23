@@ -22,4 +22,10 @@ interface TransporterInterface
      * @param  array<string, mixed>  $options
      */
     public function post(string $uri, array $options = []): ResponseInterface;
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @param  array<string, mixed>  $options
+     */
+    public function postJson(string $uri, array $data = [], array $options = []): ResponseInterface;
 }

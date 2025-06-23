@@ -9,7 +9,9 @@ use DIJ\Langfuse\Concerns\IsCompilable;
 abstract readonly class BasePromptResponse
 {
     use IsCompilable;
+
     /**
+     * @param  ($type is 'text' ? string : array<int, array{role:string, content:string}>)  $prompt
      * @param  array<int, string>  $config
      * @param  array<int, string>  $tags
      * @param  array<int, string>  $labels
@@ -17,7 +19,7 @@ abstract readonly class BasePromptResponse
     public function __construct(
         public string $id,
         public string $name,
-        public mixed $prompt,
+        public string|array $prompt,
         public string $type,
         public array $config,
         public array $tags,
