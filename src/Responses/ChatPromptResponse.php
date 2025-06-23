@@ -4,36 +4,55 @@ declare(strict_types=1);
 
 namespace DIJ\Langfuse\Responses;
 
-readonly class PromptResponse
+readonly class ChatPromptResponse extends BasePromptResponse
 {
     /**
+     * @param  array<int, array{role: string, content: string}>  $prompt
      * @param  array<int, string>  $config
      * @param  array<int, string>  $tags
      * @param  array<int, string>  $labels
      */
     public function __construct(
-        public string $id,
-        public string $name,
-        public string $prompt,
-        public string $type,
-        public array $config,
-        public array $tags,
-        public string $projectId,
-        public string $createdBy,
-        public string $createdAt,
-        public string $updatedAt,
-        public int $version,
-        public array $labels,
-        public ?string $isActive = null,
-        public ?string $commitMessage = null,
-        public ?string $resolutionGraph = null,
-    ) {}
+        string $id,
+        string $name,
+        array $prompt,
+        string $type,
+        array $config,
+        array $tags,
+        string $projectId,
+        string $createdBy,
+        string $createdAt,
+        string $updatedAt,
+        int $version,
+        array $labels,
+        ?string $isActive = null,
+        ?string $commitMessage = null,
+        ?string $resolutionGraph = null,
+    ) {
+        parent::__construct(
+            $id,
+            $name,
+            $prompt,
+            $type,
+            $config,
+            $tags,
+            $projectId,
+            $createdBy,
+            $createdAt,
+            $updatedAt,
+            $version,
+            $labels,
+            $isActive,
+            $commitMessage,
+            $resolutionGraph,
+        );
+    }
 
     /**
      * @param array{
      * id: string,
      * name: string,
-     * prompt: string,
+     * prompt: array<int, array{role: string, content: string}>,
      * type: string,
      * config: array<int, string>,
      * tags: array<int, string>,

@@ -6,7 +6,7 @@ namespace Tests\Fixtures\Prompts;
 
 use GuzzleHttp\Psr7\Response;
 
-class GetPromptResponse extends Response
+class GetChatPromptResponse extends Response
 {
     /**
      * @param  array<array<string>|string>  $headers
@@ -24,15 +24,24 @@ class GetPromptResponse extends Response
     public function payload(array $data): array
     {
         return array_merge([
-            'id' => 'b522b473-25b0-4c6e-a918-72606da402d3',
-            'createdAt' => '2025-05-28T06:48:35.156Z',
-            'updatedAt' => '2025-05-28T06:48:35.156Z',
-            'projectId' => 'cmb6akern01ppad08i2effff',
-            'createdBy' => 'cm2eq9k5x026dxgx5pgohffff',
-            'prompt' => 'You are a research bot',
-            'name' => 'general_instructions',
+            'id' => '4656f88f-0c5b-48b2-8941-d0acbdfabf08',
+            'createdAt' => '2025-06-20T16:08:21.190Z',
+            'updatedAt' => '2025-06-20T16:08:21.190Z',
+            'projectId' => 'cmb6akern01ppad08i2e0c3dm',
+            'createdBy' => 'cm2eq9k5x026dxgx5pgoho1si',
+            'prompt' => [
+                [
+                    'role' => 'system',
+                    'content' => 'Test',
+                ],
+                [
+                    'role' => 'user',
+                    'content' => 'test',
+                ],
+            ],
+            'name' => 'chat_test',
             'version' => 1,
-            'type' => 'text',
+            'type' => 'chat',
             'isActive' => null,
             'config' => [],
             'tags' => [],

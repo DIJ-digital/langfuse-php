@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace DIJ\Langfuse;
 
 use DIJ\Langfuse\Contracts\TransporterInterface;
+use DIJ\Langfuse\Enums\PromptType;
+use DIJ\Langfuse\Exceptions\InvalidPromptTypeException;
 use DIJ\Langfuse\Exceptions\NotFoundException;
+use DIJ\Langfuse\Responses\ChatPromptResponse;
 use DIJ\Langfuse\Responses\PromptListResponse;
-use DIJ\Langfuse\Responses\PromptResponse;
+use DIJ\Langfuse\Responses\TextPromptResponse;
 use JsonException;
 
 class Prompt
@@ -16,41 +19,24 @@ class Prompt
 
     /**
      * @throws JsonException
+     * @throws InvalidPromptTypeException
      */
-    public function text(string $promptName, ?string $version = null, ?string $label = null): ?PromptResponse
+    public function text(string $promptName, ?string $version = null, ?string $label = null): ?TextPromptResponse
     {
-        try {
-            $response = $this->transporter->get(
-                uri: sprintf('/api/public/v2/prompts/%s', $promptName),
-                options: array_filter([
-                    'version' => $version,
-                    'label' => $label,
-                ])
-            );
+        $data = $this->getPrompt($promptName, PromptType::TEXT, $version, $label);
 
-            /** @var array{
-             * id: string,
-             * name: string,
-             * prompt: string,
-             * type: string,
-             * config: array<int, string>,
-             * tags: array<int, string>,
-             * projectId: string,
-             * createdBy: string,
-             * createdAt: string,
-             * updatedAt: string,
-             * version: int,
-             * labels: array<int,string>,
-             * isActive: string|null,
-             * commitMessage: string|null,
-             * resolutionGraph: string|null,
-             * } $data */
-            $data = json_decode($response->getBody()->getContents(), true, flags: JSON_THROW_ON_ERROR);
-        } catch (NotFoundException) {
-            return null;
-        }
+        return $data !== null ? TextPromptResponse::fromArray($data) : null;
+    }
 
-        return PromptResponse::fromArray($data);
+    /**
+     * @throws JsonException
+     * @throws InvalidPromptTypeException
+     */
+    public function chat(string $promptName, ?string $version = null, ?string $label = null): ?ChatPromptResponse
+    {
+        $data = $this->getPrompt($promptName, PromptType::CHAT, $version, $label);
+
+        return $data !== null ? ChatPromptResponse::fromArray($data) : null;
     }
 
     public function list(?string $name = null, ?string $version = null, ?string $label = null, ?string $tag = null, ?int $page = null, ?string $fromUpdatedAt = null, ?string $toUpdatedAt = null): PromptListResponse
@@ -76,5 +62,67 @@ class Prompt
         $data = json_decode($response->getBody()->getContents(), true, flags: JSON_THROW_ON_ERROR);
 
         return PromptListResponse::fromArray($data);
+    }
+
+    /**
+     * @return array{
+     *  id: string,
+     *  name: string,
+     *  prompt: ($type is PromptType::TEXT ? string : array<int, array{role: string, content: string}>),
+     *  type: string,
+     *  config: array<int, string>,
+     *  tags: array<int, string>,
+     *  projectId: string,
+     *  createdBy: string,
+     *  createdAt: string,
+     *  updatedAt: string,
+     *  version: int,
+     *  labels: array<int,string>,
+     *  isActive: string|null,
+     *  commitMessage: string|null,
+     *  resolutionGraph: string|null,
+     *  }|null
+     *
+     * @throws InvalidPromptTypeException
+     * @throws JsonException
+     */
+    private function getPrompt(string $promptName, PromptType $type, ?string $version = null, ?string $label = null): ?array
+    {
+        try {
+            $response = $this->transporter->get(
+                uri: sprintf('/api/public/v2/prompts/%s', $promptName),
+                options: array_filter([
+                    'version' => $version,
+                    'label' => $label,
+                ])
+            );
+        } catch (NotFoundException) {
+            return null;
+        }
+
+        /** @var array{
+         * id: string,
+         * name: string,
+         * prompt: ($type is "text" ? string : array<int, array{role: string, content: string}>),
+         * type: string,
+         * config: array<int, string>,
+         * tags: array<int, string>,
+         * projectId: string,
+         * createdBy: string,
+         * createdAt: string,
+         * updatedAt: string,
+         * version: int,
+         * labels: array<int,string>,
+         * isActive: string|null,
+         * commitMessage: string|null,
+         * resolutionGraph: string|null,
+         * }  $data */
+        $data = json_decode($response->getBody()->getContents(), true, flags: JSON_THROW_ON_ERROR);
+
+        if ($data['type'] !== $type->value) {
+            throw InvalidPromptTypeException::fromMessage("{$promptName} returns a prompt of type {$data['type']}, but expected {$type->value}.");
+        }
+
+        return $data;
     }
 }

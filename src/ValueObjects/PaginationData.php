@@ -14,15 +14,15 @@ readonly class PaginationData
     ) {}
 
     /**
-     * @param  array<string, int>  $data
+     * @param  array{page: int, limit: int, totalPages: int, totalItems: int}  $data
      */
     public static function fromArray(array $data): self
     {
         return new self(
-            page: (int) ($data['page'] ?? 0),
-            limit: (int) ($data['limit'] ?? 0),
-            totalPages: (int) ($data['totalPages'] ?? 0),
-            totalItems: (int) ($data['totalItems'] ?? 0),
+            page: $data['page'],
+            limit: $data['limit'],
+            totalPages: $data['totalPages'],
+            totalItems: $data['totalItems'],
         );
     }
 }
