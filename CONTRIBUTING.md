@@ -45,3 +45,8 @@ Unit tests:
 ```bash
 composer test:unit
 ```
+
+Codestyle:
+```bash
+composer codestyle
+```
