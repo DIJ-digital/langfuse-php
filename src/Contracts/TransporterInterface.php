@@ -6,5 +6,8 @@ namespace DIJ\Langfuse\Contracts;
 
 interface TransporterInterface
 {
-    public function get(string $uri, array $data = []): array;
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    public function get(string $uri, array $data = []): mixed;
 }

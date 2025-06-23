@@ -18,18 +18,11 @@ use GuzzleHttp\Exception\GuzzleException;
 
 class HttpTransporter implements TransporterInterface
 {
-    /**
-     * @param  array<string, mixed>  $headers
-     * @param  array<string, mixed>  $clientOptions
-     */
     public function __construct(
         public readonly ClientInterface $client
     ) {}
 
     /**
-     * @param  array<string, mixed>  $data
-     * @return array<int, mixed>
-     *
      * @throws BadRequestException
      * @throws UnauthorizedException
      * @throws ForbiddenException
@@ -38,12 +31,10 @@ class HttpTransporter implements TransporterInterface
      * @throws InternalServerErrorException
      * @throws LangfuseException
      */
-    public function get(string $uri, array $data = []): array
+    public function get(string $uri, array $data = []): mixed
     {
         try {
-
             $response = $this->client->request('GET', $uri, $data);
-
             $responseData = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {

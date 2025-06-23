@@ -44,6 +44,11 @@
     "scripts": {
         "lint": "pint",
         "refactor": "rector",
+        "codestyle": [
+            "@lint",
+            "@refactor",
+            "@test:types"
+        ],
         "test:type-coverage": "pest --type-coverage --exactly=100",
         "test:typos": "peck",
         "test:lint": "pint --test",

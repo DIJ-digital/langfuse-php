@@ -23,19 +23,34 @@ class Prompt
                     'label' => $label,
                 ])
             );
-        } catch (NotFoundException $e) {
+        } catch (NotFoundException) {
             return null;
         }
 
         return PromptResponse::fromArray($response);
     }
 
-    /**
-     * Get all prompts
-     */
-    public function list(): PromptListResponse
-    {
-        $response = $this->transporter->get('/api/public/v2/prompts');
+    public function list(
+        ?string $name,
+        ?string $version,
+        ?string $label,
+        ?string $tag,
+        ?int $page,
+        ?string $fromUpdatedAt,
+        ?string $toUpdatedAt
+    ): PromptListResponse {
+        $response = $this->transporter->get(
+            uri: '/api/public/v2/prompts',
+            data: array_filter([
+                'name' => $name,
+                'version' => $version,
+                'label' => $label,
+                'tag' => $tag,
+                'page' => $page,
+                'fromUpdatedAt' => $fromUpdatedAt,
+                'toUpdatedAt' => $toUpdatedAt,
+            ])
+        );
 
         return PromptListResponse::fromArray($response);
     }

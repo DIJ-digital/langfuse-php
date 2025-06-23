@@ -8,20 +8,30 @@ use DIJ\Langfuse\ValueObjects\MetaData;
 use DIJ\Langfuse\ValueObjects\PaginationData;
 use DIJ\Langfuse\ValueObjects\PromptListItem;
 
-final readonly class PromptListResponse
+readonly class PromptListResponse
 {
+    /**
+     * @param  array<int, PromptListItem>  $data
+     */
     public function __construct(
         public array $data,
         public MetaData $meta,
         public PaginationData $pagination,
     ) {}
 
+    /**
+     * @param array{
+     *     data: array<int, array{name: string, tags: array<int, string>, lastUpdatedAt: string, versions: array<int, int>, labels: array<int, string>, lastConfig: array<string, mixed>}>,
+     *     meta: array{page: int, limit: int, totalPages: int, totalItems: int},
+     *     pagination: array{page: int, limit: int, totalPages: int, totalItems: int}
+     * } $data
+     */
     public static function fromArray(array $data): self
     {
         return new self(
-            data: array_map(fn (array $prompt) => PromptListItem::fromArray($prompt), $data['data'] ?? []),
-            meta: MetaData::fromArray($data['meta']) ?? [],
-            pagination: PaginationData::fromArray($data['pagination']) ?? [],
+            data: array_map(fn (array $data): PromptListItem => PromptListItem::fromArray($data), $data['data']),
+            meta: MetaData::fromArray($data['meta']),
+            pagination: PaginationData::fromArray($data['pagination']),
         );
     }
 }
