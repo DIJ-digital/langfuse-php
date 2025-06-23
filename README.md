@@ -1,5 +1,6 @@
 ------
-This pacakge provides a wrapper around the [Langfuse](https://langfuse.com) Api, allowing you to easily integrate Langfuse into your PHP applications.
+**Langfuse PHP** - A PHP Client for Langfuse API
+This package provides a wrapper around the [Langfuse](https://langfuse.com) Api, allowing you to easily integrate Langfuse into your PHP applications.
 
 > **Requires [PHP 8.3+](https://php.net/releases/)**
 
