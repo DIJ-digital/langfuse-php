@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use DIJ\Langfuse\Langfuse;
-use DIJ\Langfuse\Responses\ChatPromptResponse;
 use DIJ\Langfuse\Responses\PromptListResponse;
+use DIJ\Langfuse\Responses\PromptResponse;
 use DIJ\Langfuse\Transporters\HttpTransporter;
 use DIJ\Langfuse\ValueObjects\MetaData;
 use DIJ\Langfuse\ValueObjects\PaginationData;
@@ -27,7 +27,7 @@ it('can get a text prompt', function (): void {
         ->prompt()
         ->text('generate_basic_report_input');
 
-    expect($prompt)->toBeInstanceOf(ChatPromptResponse::class);
+    expect($prompt)->toBeInstanceOf(PromptResponse::class);
     expect($prompt->type)->toBe('text');
 });
 
@@ -69,20 +69,7 @@ it('returns null when prompt not found', function (): void {
     expect($prompt)->toBeNull();
 });
 
-it('is working', function (): void {
-    $client = new Client(
-        [
-            'base_uri' => 'https://cloud.langfuse.com',
-            'auth' => ['pk-lf-9c62e7b8-beff-44ec-a6b7-1dd6a153b8b3', 'sk-lf-b624cd15-b0c2-46c5-985f-a007666515ec'],
-        ]
-    );
 
-    $prompt = new Langfuse(new HttpTransporter($client))
-        ->prompt()
-        ->text('generate_basic_report_input');
-
-    dd($prompt);
-});
 
 it('can get a chat prompt')->todo();
 it('can compile a text prompt')->todo();
