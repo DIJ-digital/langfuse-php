@@ -15,6 +15,7 @@ use DIJ\Langfuse\Exceptions\NotFoundException;
 use DIJ\Langfuse\Exceptions\UnauthorizedException;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
+use Psr\Http\Message\ResponseInterface;
 
 class HttpTransporter implements TransporterInterface
 {
@@ -31,19 +32,34 @@ class HttpTransporter implements TransporterInterface
      * @throws InternalServerErrorException
      * @throws LangfuseException
      */
-    public function get(string $uri, array $data = []): mixed
+    public function request(string $method, string $uri, array $options = []): ResponseInterface
     {
         try {
-            $response = $this->client->request('GET', $uri, $data);
-            $responseData = json_decode($response->getBody()->getContents(), true);
-
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new \RuntimeException('Failed to decode JSON response: '.json_last_error_msg());
-            }
-
-            return $responseData;
+            $response = $this->client->request($method, $uri, $options);
         } catch (GuzzleException $e) {
             throw ExceptionFactory::createFromStatusCode($e->getCode(), $e->getMessage());
         }
+
+        return $response;
+    }
+
+    /**
+     * @param  array<string, mixed>  $options
+     *
+     * @throws GuzzleException
+     */
+    public function get(string $uri, array $options = []): ResponseInterface
+    {
+        return $this->request('GET', $uri, $options);
+    }
+
+    /**
+     * @param  array<string, mixed>  $options
+     *
+     * @throws GuzzleException
+     */
+    public function post(string $uri, array $options = []): ResponseInterface
+    {
+        return $this->request('POST', $uri, $options);
     }
 }

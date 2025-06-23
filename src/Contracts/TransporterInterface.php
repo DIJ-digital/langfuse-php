@@ -4,10 +4,22 @@ declare(strict_types=1);
 
 namespace DIJ\Langfuse\Contracts;
 
+use Psr\Http\Message\ResponseInterface;
+
 interface TransporterInterface
 {
     /**
-     * @param  array<string, mixed>  $data
+     * @param  array<string, mixed>  $options
      */
-    public function get(string $uri, array $data = []): mixed;
+    public function request(string $method, string $uri, array $options = []): ResponseInterface;
+
+    /**
+     * @param  array<string, mixed>  $options
+     */
+    public function get(string $uri, array $options = []): ResponseInterface;
+
+    /**
+     * @param  array<string, mixed>  $options
+     */
+    public function post(string $uri, array $options = []): ResponseInterface;
 }
