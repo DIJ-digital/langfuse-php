@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use DIJ\Langfuse\Exceptions\InvalidPromptTypeException;
 use DIJ\Langfuse\Langfuse;
 use DIJ\Langfuse\Responses\ChatPromptResponse;
 use DIJ\Langfuse\Responses\PromptListResponse;
@@ -36,6 +37,22 @@ it('can get a text prompt', function (): void {
     expect($prompt)->toBeInstanceOf(TextPromptResponse::class)
         ->and($prompt->type)->toBe('text')
         ->and($prompt->name)->toBe($promptName);
+});
+
+it('returns an error when chat prompt is provided when using text type', function (): void {
+    $this->expectException(InvalidPromptTypeException::class);
+    $mock = new MockHandler([
+        new GetChatPromptResponse(),
+    ]);
+
+    $handlerStack = HandlerStack::create($mock);
+    $client = new Client(['handler' => $handlerStack]);
+
+    $promptName = 'generate_basic_report_input';
+
+     new Langfuse(new HttpTransporter($client))
+        ->prompt()
+        ->text($promptName);
 });
 
 it('can list prompts', function (): void {
@@ -95,7 +112,66 @@ it('can get a chat prompt', function (): void {
         ->and($prompt->type)->toBe('chat')
         ->and($prompt->name)->toBe($promptName);
 });
-it('can compile a text prompt')->todo();
-it('can compile a chat prompt')->todo();
+
+it('can compile a text prompt', function (): void {
+    $mock = new MockHandler([
+        new GetPromptResponse,
+    ]);
+
+    $handlerStack = HandlerStack::create($mock);
+    $client = new Client(['handler' => $handlerStack]);
+
+    $promptName = 'generate_basic_report_input';
+
+    /** @var TextPromptResponse $prompt */
+    $prompt = new Langfuse(new HttpTransporter($client))
+        ->prompt()
+        ->text($promptName)
+        ->compile(['name' => 'John Doe']);
+
+
+    expect($prompt)->toBeString()
+        ->toBe('You are a research bot {{name}}');
+});
+
+it('returns an error when text prompt is provided when using text chat', function (): void {
+    $this->expectException(InvalidPromptTypeException::class);
+    $mock = new MockHandler([
+        new GetPromptResponse(),
+    ]);
+
+    $handlerStack = HandlerStack::create($mock);
+    $client = new Client(['handler' => $handlerStack]);
+
+    $promptName = 'chat_test';
+
+    new Langfuse(new HttpTransporter($client))
+        ->prompt()
+        ->chat($promptName);
+});
+
+
+it('can compile a chat prompt', function (): void {
+        $mock = new MockHandler([
+            new GetChatPromptResponse(),
+        ]);
+
+        $handlerStack = HandlerStack::create($mock);
+        $client = new Client(['handler' => $handlerStack]);
+
+        $promptName = 'chat_test';
+
+        /** @var TextPromptResponse $prompt */
+        $prompt = new Langfuse(new HttpTransporter($client))
+            ->prompt()
+            ->chat($promptName)
+            ->compile(['name' => 'John Doe', 'user' => 'user']);
+
+        expect($prompt)->toBeArray()
+            ->toBe([
+                ['role' => 'system', 'content' => 'Test John Doe'],
+                ['role' => 'user', 'content' => 'test user'],
+            ]);
+});
 it('can create a text prompt')->todo();
 it('can create a chat prompt')->todo();

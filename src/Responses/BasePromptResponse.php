@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace DIJ\Langfuse\Responses;
 
+use DIJ\Langfuse\Concerns\IsCompilable;
+
 abstract readonly class BasePromptResponse
 {
+    use IsCompilable;
     /**
      * @param  array<int, string>  $config
      * @param  array<int, string>  $tags

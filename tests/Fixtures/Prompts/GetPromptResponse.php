@@ -29,7 +29,7 @@ class GetPromptResponse extends Response
             'updatedAt' => '2025-05-28T06:48:35.156Z',
             'projectId' => 'cmb6akern01ppad08i2effff',
             'createdBy' => 'cm2eq9k5x026dxgx5pgohffff',
-            'prompt' => 'You are a research bot',
+            'prompt' => 'You are a research bot {{name}}',
             'name' => 'general_instructions',
             'version' => 1,
             'type' => 'text',

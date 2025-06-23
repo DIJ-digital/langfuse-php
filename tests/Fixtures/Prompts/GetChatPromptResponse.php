@@ -27,16 +27,16 @@ class GetChatPromptResponse extends Response
             'id' => '4656f88f-0c5b-48b2-8941-d0acbdfabf08',
             'createdAt' => '2025-06-20T16:08:21.190Z',
             'updatedAt' => '2025-06-20T16:08:21.190Z',
-            'projectId' => 'cmb6akern01ppad08i2e0c3dm',
-            'createdBy' => 'cm2eq9k5x026dxgx5pgoho1si',
+            'projectId' => 'cmb6akern01ppad08i2e0ffff',
+            'createdBy' => 'cm2eq9k5x026dxgx5pgohffff',
             'prompt' => [
                 [
                     'role' => 'system',
-                    'content' => 'Test',
+                    'content' => 'Test {{name}}',
                 ],
                 [
                     'role' => 'user',
-                    'content' => 'test',
+                    'content' => 'test {{user}}',
                 ],
             ],
             'name' => 'chat_test',
