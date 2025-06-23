@@ -2,7 +2,8 @@
     "preset": "base",
     "ignore": {
         "words": [
-            "php"
+            "php",
+            "langfuse"
         ]
     }
 }
