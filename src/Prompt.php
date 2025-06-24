@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace DIJ\Langfuse;
+namespace DIJ\Langfuse\PHP;
 
-use DIJ\Langfuse\Contracts\TransporterInterface;
-use DIJ\Langfuse\Enums\PromptType;
-use DIJ\Langfuse\Exceptions\InvalidPromptTypeException;
-use DIJ\Langfuse\Exceptions\NotFoundException;
-use DIJ\Langfuse\Responses\ChatPromptResponse;
-use DIJ\Langfuse\Responses\PromptListResponse;
-use DIJ\Langfuse\Responses\TextPromptResponse;
+use DIJ\Langfuse\PHP\Contracts\TransporterInterface;
+use DIJ\Langfuse\PHP\Enums\PromptType;
+use DIJ\Langfuse\PHP\Exceptions\InvalidPromptTypeException;
+use DIJ\Langfuse\PHP\Exceptions\NotFoundException;
+use DIJ\Langfuse\PHP\Responses\ChatPromptResponse;
+use DIJ\Langfuse\PHP\Responses\PromptListResponse;
+use DIJ\Langfuse\PHP\Responses\TextPromptResponse;
 use JsonException;
 
 class Prompt

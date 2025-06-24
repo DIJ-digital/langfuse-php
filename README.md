@@ -28,8 +28,8 @@ composer test
 
 ### How to use this package
 ```php
-use DIJ\Langfuse;
-use DIJ\Langfuse\Transporters\HttpTransporter;  
+use DIJ\Langfuse\PHP;
+use DIJ\Langfuse\PHP\Transporters\HttpTransporter;  
 use GuzzleHttp\Client;
 
 $langfuse = new Langfuse(new HttpTransporter(new Client([  

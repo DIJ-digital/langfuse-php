@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Tests\Fixtures\Prompts;
+namespace DIJ\Langfuse\PHP\Testing\Responses;
 
 use GuzzleHttp\Psr7\Response;
 
-class PostPromptReponse extends Response
+class PostChatPromptReponse extends Response
 {
     public function __construct(int $status = 201, array $headers = [], string $version = '1.1', ?string $reason = null)
     {
@@ -24,10 +24,15 @@ class PostPromptReponse extends Response
             'updatedAt' => '2025-06-23T13:30:25.449Z',
             'projectId' => 'cmb6akern01ppad08i2e0c3dm',
             'createdBy' => 'API',
-            'prompt' => 'example',
+            'prompt' => [
+                [
+                    'role' => 'example',
+                    'content' => 'example',
+                ],
+            ],
             'name' => 'test',
             'version' => 1,
-            'type' => 'text',
+            'type' => 'chat',
             'isActive' => null,
             'config' => [
                 'foo' => 'bar',

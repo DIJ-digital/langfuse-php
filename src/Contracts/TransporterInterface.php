@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DIJ\Langfuse\Contracts;
+namespace DIJ\Langfuse\PHP\Contracts;
 
 use Psr\Http\Message\ResponseInterface;
 

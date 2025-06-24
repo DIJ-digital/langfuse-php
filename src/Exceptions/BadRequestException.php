@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DIJ\Langfuse\Exceptions;
+namespace DIJ\Langfuse\PHP\Exceptions;
 
 use Exception;
 

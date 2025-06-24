@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DIJ\Langfuse\Responses;
+namespace DIJ\Langfuse\PHP\Responses;
 
 readonly class TextPromptResponse extends BasePromptResponse
 {

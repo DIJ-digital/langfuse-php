@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DIJ\Langfuse\Enums;
+namespace DIJ\Langfuse\PHP\Enums;
 
 enum PromptType: string
 {

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace DIJ\Langfuse;
+namespace DIJ\Langfuse\PHP;
 
-use DIJ\Langfuse\Contracts\TransporterInterface;
+use DIJ\Langfuse\PHP\Contracts\TransporterInterface;
 
 class Langfuse
 {

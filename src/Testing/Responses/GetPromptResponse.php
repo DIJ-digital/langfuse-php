@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Fixtures\Prompts;
+namespace DIJ\Langfuse\PHP\Testing\Responses;
 
 use GuzzleHttp\Psr7\Response;
 

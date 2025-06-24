@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace DIJ\Langfuse\Transporters;
+namespace DIJ\Langfuse\PHP\Transporters;
 
-use DIJ\Langfuse\Contracts\TransporterInterface;
-use DIJ\Langfuse\Exceptions\BadRequestException;
-use DIJ\Langfuse\Exceptions\ExceptionFactory;
-use DIJ\Langfuse\Exceptions\ForbiddenException;
-use DIJ\Langfuse\Exceptions\InternalServerErrorException;
-use DIJ\Langfuse\Exceptions\LangfuseException;
-use DIJ\Langfuse\Exceptions\MethodNotAllowedException;
-use DIJ\Langfuse\Exceptions\NotFoundException;
-use DIJ\Langfuse\Exceptions\UnauthorizedException;
+use DIJ\Langfuse\PHP\Contracts\TransporterInterface;
+use DIJ\Langfuse\PHP\Exceptions\BadRequestException;
+use DIJ\Langfuse\PHP\Exceptions\ExceptionFactory;
+use DIJ\Langfuse\PHP\Exceptions\ForbiddenException;
+use DIJ\Langfuse\PHP\Exceptions\InternalServerErrorException;
+use DIJ\Langfuse\PHP\Exceptions\LangfuseException;
+use DIJ\Langfuse\PHP\Exceptions\MethodNotAllowedException;
+use DIJ\Langfuse\PHP\Exceptions\NotFoundException;
+use DIJ\Langfuse\PHP\Exceptions\UnauthorizedException;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use Psr\Http\Message\ResponseInterface;

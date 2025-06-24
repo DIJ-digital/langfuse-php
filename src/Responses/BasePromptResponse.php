@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace DIJ\Langfuse\Responses;
+namespace DIJ\Langfuse\PHP\Responses;
 
-use DIJ\Langfuse\Concerns\IsCompilable;
+use DIJ\Langfuse\PHP\Concerns\IsCompilable;
 
 abstract readonly class BasePromptResponse
 {

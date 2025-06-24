@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace DIJ\Langfuse\Responses;
+namespace DIJ\Langfuse\PHP\Responses;
 
-use DIJ\Langfuse\ValueObjects\MetaData;
-use DIJ\Langfuse\ValueObjects\PaginationData;
-use DIJ\Langfuse\ValueObjects\PromptListItem;
+use DIJ\Langfuse\PHP\ValueObjects\MetaData;
+use DIJ\Langfuse\PHP\ValueObjects\PaginationData;
+use DIJ\Langfuse\PHP\ValueObjects\PromptListItem;
 
 readonly class PromptListResponse
 {

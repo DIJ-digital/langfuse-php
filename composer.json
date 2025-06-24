@@ -24,7 +24,7 @@
     },
     "autoload": {
         "psr-4": {
-            "DIJ\\Langfuse\\": "src/"
+            "DIJ\\Langfuse\\PHP\\": "src/"
         }
     },
     "autoload-dev": {

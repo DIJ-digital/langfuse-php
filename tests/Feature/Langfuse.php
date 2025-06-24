@@ -2,25 +2,25 @@
 
 declare(strict_types=1);
 
-use DIJ\Langfuse\Enums\PromptType;
-use DIJ\Langfuse\Exceptions\InvalidPromptTypeException;
-use DIJ\Langfuse\Langfuse;
-use DIJ\Langfuse\Responses\ChatPromptResponse;
-use DIJ\Langfuse\Responses\PromptListResponse;
-use DIJ\Langfuse\Responses\TextPromptResponse;
-use DIJ\Langfuse\Transporters\HttpTransporter;
-use DIJ\Langfuse\ValueObjects\MetaData;
-use DIJ\Langfuse\ValueObjects\PaginationData;
-use DIJ\Langfuse\ValueObjects\PromptListItem;
+use DIJ\Langfuse\PHP\Enums\PromptType;
+use DIJ\Langfuse\PHP\Exceptions\InvalidPromptTypeException;
+use DIJ\Langfuse\PHP\Langfuse;
+use DIJ\Langfuse\PHP\Responses\ChatPromptResponse;
+use DIJ\Langfuse\PHP\Responses\PromptListResponse;
+use DIJ\Langfuse\PHP\Responses\TextPromptResponse;
+use DIJ\Langfuse\PHP\Testing\Responses\GetChatPromptResponse;
+use DIJ\Langfuse\PHP\Testing\Responses\GetPromptListResponse;
+use DIJ\Langfuse\PHP\Testing\Responses\GetPromptResponse;
+use DIJ\Langfuse\PHP\Testing\Responses\NoPromptFoundResponse;
+use DIJ\Langfuse\PHP\Testing\Responses\PostChatPromptReponse;
+use DIJ\Langfuse\PHP\Testing\Responses\PostPromptReponse;
+use DIJ\Langfuse\PHP\Transporters\HttpTransporter;
+use DIJ\Langfuse\PHP\ValueObjects\MetaData;
+use DIJ\Langfuse\PHP\ValueObjects\PaginationData;
+use DIJ\Langfuse\PHP\ValueObjects\PromptListItem;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
-use Tests\Fixtures\Prompts\GetChatPromptResponse;
-use Tests\Fixtures\Prompts\GetPromptListResponse;
-use Tests\Fixtures\Prompts\GetPromptResponse;
-use Tests\Fixtures\Prompts\NoPromptFoundResponse;
-use Tests\Fixtures\Prompts\PostChatPromptReponse;
-use Tests\Fixtures\Prompts\PostPromptReponse;
 
 it('can get a text prompt', function (): void {
     $mock = new MockHandler([

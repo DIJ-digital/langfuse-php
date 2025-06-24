@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DIJ\Langfuse\ValueObjects;
+namespace DIJ\Langfuse\PHP\ValueObjects;
 
 readonly class PromptListItem
 {
