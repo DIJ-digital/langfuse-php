@@ -8,17 +8,21 @@ use GuzzleHttp\Psr7\Response;
 
 class PostChatPromptReponse extends Response
 {
-    public function __construct(int $status = 201, array $headers = [], string $version = '1.1', ?string $reason = null)
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    public function __construct(int $status = 201, array $headers = [], string $version = '1.1', ?string $reason = null, array $data = [])
     {
-        parent::__construct($status, $headers, (string) json_encode($this->payload()), $version, $reason);
+        parent::__construct($status, $headers, (string) json_encode($this->payload($data)), $version, $reason);
     }
 
     /**
+     * @param  array<string, mixed>  $data
      * @return array<string, mixed>
      */
-    public function payload(): array
+    public function payload(array $data = []): array
     {
-        return [
+        return array_merge([
             'id' => '22969be5-5115-41f7-aeb4-15656922950c',
             'createdAt' => '2025-06-23T13:30:25.449Z',
             'updatedAt' => '2025-06-23T13:30:25.449Z',
@@ -45,6 +49,6 @@ class PostChatPromptReponse extends Response
                 'latest',
             ],
             'commitMessage' => 'example',
-        ];
+        ], $data);
     }
 }

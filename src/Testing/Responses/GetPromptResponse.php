@@ -21,7 +21,7 @@ class GetPromptResponse extends Response
      * @param  array<string, mixed>  $data
      * @return array<string, mixed>
      */
-    public function payload(array $data): array
+    public function payload(array $data = []): array
     {
         return array_merge([
             'id' => 'b522b473-25b0-4c6e-a918-72606da402d3',

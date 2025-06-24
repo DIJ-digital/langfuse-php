@@ -21,7 +21,7 @@ class GetChatPromptResponse extends Response
      * @param  array<string, mixed>  $data
      * @return array<string, mixed>
      */
-    public function payload(array $data): array
+    public function payload(array $data = []): array
     {
         return array_merge([
             'id' => '4656f88f-0c5b-48b2-8941-d0acbdfabf08',
