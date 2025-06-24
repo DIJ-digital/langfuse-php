@@ -7,10 +7,10 @@ namespace DIJ\Langfuse\Responses;
 readonly class ChatPromptResponse extends BasePromptResponse
 {
     /**
-     * @param array<int, array{role: string, content: string}> $prompt
-     * @param array<int, string> $config
-     * @param array<int, string> $tags
-     * @param array<int, string> $labels
+     * @param  array<int, array{role: string, content: string}>  $prompt
+     * @param  array<int, string>  $config
+     * @param  array<int, string>  $tags
+     * @param  array<int, string>  $labels
      */
     public function __construct(
         string $id,

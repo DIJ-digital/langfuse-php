@@ -11,10 +11,10 @@ abstract readonly class BasePromptResponse
     use IsCompilable;
 
     /**
-     * @param ($type is 'text' ? string : array<int, array{role:string, content:string}>) $prompt
-     * @param array<int, string> $config
-     * @param array<int, string> $tags
-     * @param array<int, string> $labels
+     * @param  ($type is 'text' ? string : array<int, array{role:string, content:string}>)  $prompt
+     * @param  array<int, string>  $config
+     * @param  array<int, string>  $tags
+     * @param  array<int, string>  $labels
      */
     public function __construct(
         public string $id,
@@ -32,6 +32,5 @@ abstract readonly class BasePromptResponse
         public ?string $isActive = null,
         public ?string $commitMessage = null,
         public ?string $resolutionGraph = null,
-    ) {
-    }
+    ) {}
 }

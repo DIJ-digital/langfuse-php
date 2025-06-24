@@ -7,10 +7,10 @@ namespace DIJ\Langfuse\ValueObjects;
 readonly class PromptListItem
 {
     /**
-     * @param array<int, string> $tags
-     * @param array<int, int> $versions
-     * @param array<int, string> $labels
-     * @param array<string, mixed> $lastConfig
+     * @param  array<int, string>  $tags
+     * @param  array<int, int>  $versions
+     * @param  array<int, string>  $labels
+     * @param  array<string, mixed>  $lastConfig
      */
     public function __construct(
         public string $name,
@@ -19,11 +19,10 @@ readonly class PromptListItem
         public array $versions,
         public array $labels,
         public array $lastConfig,
-    ) {
-    }
+    ) {}
 
     /**
-     * @param array{name: string, tags: array<int, string>, lastUpdatedAt: string, versions: array<int, int>, labels: array<int, string>, lastConfig: array<string, mixed>} $data
+     * @param  array{name: string, tags: array<int, string>, lastUpdatedAt: string, versions: array<int, int>, labels: array<int, string>, lastConfig: array<string, mixed>}  $data
      */
     public static function fromArray(array $data): self
     {

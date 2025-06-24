@@ -8,9 +8,7 @@ use DIJ\Langfuse\Contracts\TransporterInterface;
 
 class Langfuse
 {
-    public function __construct(private readonly TransporterInterface $transporter)
-    {
-    }
+    public function __construct(private readonly TransporterInterface $transporter) {}
 
     public function prompt(): Prompt
     {

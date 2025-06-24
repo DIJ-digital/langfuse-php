@@ -9,8 +9,8 @@ use GuzzleHttp\Psr7\Response;
 class GetPromptResponse extends Response
 {
     /**
-     * @param array<array<string>|string> $headers
-     * @param array<string, mixed> $data
+     * @param  array<array<string>|string>  $headers
+     * @param  array<string, mixed>  $data
      */
     public function __construct(int $status = 200, array $headers = [], string $version = '1.1', ?string $reason = null, array $data = [])
     {
@@ -18,7 +18,7 @@ class GetPromptResponse extends Response
     }
 
     /**
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      * @return array<string, mixed>
      */
     public function payload(array $data): array
