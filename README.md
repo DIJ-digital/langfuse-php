@@ -1,6 +1,4 @@
 ------  
-**
-
 ## Langfuse PHP - A PHP Client for Langfuse API
 This package provides a wrapper around the [Langfuse](https://langfuse.com) Api, allowing you to easily integrate Langfuse into your PHP applications. It uses as few dependencies as possible.
 
@@ -28,7 +26,7 @@ composer codestyle
 composer test  
 ```  
 
-How to use
+### How to use
 ```php
 use DIJ\Langfuse;
 use DIJ\Langfuse\Transporters\HttpTransporter;  
