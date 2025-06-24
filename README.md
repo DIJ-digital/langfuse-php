@@ -26,7 +26,7 @@ composer codestyle
 composer test  
 ```  
 
-### How to use
+### How to use this package
 ```php
 use DIJ\Langfuse;
 use DIJ\Langfuse\Transporters\HttpTransporter;  
