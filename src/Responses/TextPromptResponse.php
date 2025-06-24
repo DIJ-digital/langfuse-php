@@ -7,9 +7,9 @@ namespace DIJ\Langfuse\Responses;
 readonly class TextPromptResponse extends BasePromptResponse
 {
     /**
-     * @param  array<int, string>  $config
-     * @param  array<int, string>  $tags
-     * @param  array<int, string>  $labels
+     * @param array<int, string> $config
+     * @param array<int, string> $tags
+     * @param array<int, string> $labels
      */
     public function __construct(
         string $id,

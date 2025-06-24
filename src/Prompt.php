@@ -15,7 +15,9 @@ use JsonException;
 
 class Prompt
 {
-    public function __construct(private readonly TransporterInterface $transporter) {}
+    public function __construct(private readonly TransporterInterface $transporter)
+    {
+    }
 
     /**
      * @throws JsonException
@@ -127,9 +129,9 @@ class Prompt
     }
 
     /**
-     * @param  ($type is PromptType::TEXT ? string : array<int, array{role: string, content: string}>)  $prompt  ,
-     * @param  array<int, string>|null  $config
-     * @param  array<int, string>|null  $tags
+     * @param ($type is PromptType::TEXT ? string : array<int, array{role: string, content: string}>) $prompt ,
+     * @param array<int, string>|null $config
+     * @param array<int, string>|null $tags
      * @return ($type is PromptType::TEXT ? TextPromptResponse : ChatPromptResponse)
      *
      * @throws JsonException

@@ -11,13 +11,14 @@ use DIJ\Langfuse\ValueObjects\PromptListItem;
 readonly class PromptListResponse
 {
     /**
-     * @param  array<int, PromptListItem>  $data
+     * @param array<int, PromptListItem> $data
      */
     public function __construct(
         public array $data,
         public MetaData $meta,
         public PaginationData $pagination,
-    ) {}
+    ) {
+    }
 
     /**
      * @param array{

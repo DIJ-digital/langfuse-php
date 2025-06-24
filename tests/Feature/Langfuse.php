@@ -24,7 +24,7 @@ use Tests\Fixtures\Prompts\PostPromptReponse;
 
 it('can get a text prompt', function (): void {
     $mock = new MockHandler([
-        new GetPromptResponse,
+        new GetPromptResponse(),
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -44,7 +44,7 @@ it('can get a text prompt', function (): void {
 
 it('returns an error when chat prompt is provided when using text type', function (): void {
     $mock = new MockHandler([
-        new GetChatPromptResponse,
+        new GetChatPromptResponse(),
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -59,7 +59,7 @@ it('returns an error when chat prompt is provided when using text type', functio
 
 it('can list prompts', function (): void {
     $mock = new MockHandler([
-        new GetPromptListResponse,
+        new GetPromptListResponse(),
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -85,7 +85,7 @@ it('can list prompts', function (): void {
 
 it('returns null when prompt not found', function (): void {
     $mock = new MockHandler([
-        new NoPromptFoundResponse,
+        new NoPromptFoundResponse(),
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -97,7 +97,7 @@ it('returns null when prompt not found', function (): void {
 
 it('can get a chat prompt', function (): void {
     $mock = new MockHandler([
-        new GetChatPromptResponse,
+        new GetChatPromptResponse(),
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -117,7 +117,7 @@ it('can get a chat prompt', function (): void {
 
 it('can compile a text prompt', function (): void {
     $mock = new MockHandler([
-        new GetPromptResponse,
+        new GetPromptResponse(),
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -138,7 +138,7 @@ it('can compile a text prompt', function (): void {
 
 it('returns an error when text prompt is provided when using text chat', function (): void {
     $mock = new MockHandler([
-        new GetPromptResponse,
+        new GetPromptResponse(),
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -153,7 +153,7 @@ it('returns an error when text prompt is provided when using text chat', functio
 
 it('can compile a chat prompt', function (): void {
     $mock = new MockHandler([
-        new GetChatPromptResponse,
+        new GetChatPromptResponse(),
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -176,7 +176,7 @@ it('can compile a chat prompt', function (): void {
 });
 it('can create a text prompt', function (): void {
     $mock = new MockHandler([
-        new PostPromptReponse,
+        new PostPromptReponse(),
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -195,7 +195,7 @@ it('can create a text prompt', function (): void {
 });
 it('can create a chat prompt', function (): void {
     $mock = new MockHandler([
-        new PostChatPromptReponse,
+        new PostChatPromptReponse(),
     ]);
 
     $handlerStack = HandlerStack::create($mock);
