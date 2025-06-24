@@ -30,7 +30,7 @@ composer test
 
 How to use
 ```php
-use DIJ\Langfuse
+use DIJ\Langfuse;
 use DIJ\Langfuse\Transporters\HttpTransporter;  
 use GuzzleHttp\Client;
 
