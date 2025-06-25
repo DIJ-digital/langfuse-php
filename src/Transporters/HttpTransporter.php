@@ -46,7 +46,13 @@ class HttpTransporter implements TransporterInterface
     /**
      * @param  array<string, mixed>  $options
      *
-     * @throws GuzzleException
+     * @throws BadRequestException
+     * @throws ForbiddenException
+     * @throws InternalServerErrorException
+     * @throws LangfuseException
+     * @throws MethodNotAllowedException
+     * @throws NotFoundException
+     * @throws UnauthorizedException
      */
     public function get(string $uri, array $options = []): ResponseInterface
     {
@@ -56,7 +62,13 @@ class HttpTransporter implements TransporterInterface
     /**
      * @param  array<string, mixed>  $options
      *
-     * @throws GuzzleException
+     * @throws BadRequestException
+     * @throws ForbiddenException
+     * @throws InternalServerErrorException
+     * @throws LangfuseException
+     * @throws MethodNotAllowedException
+     * @throws NotFoundException
+     * @throws UnauthorizedException
      */
     public function post(string $uri, array $options = []): ResponseInterface
     {

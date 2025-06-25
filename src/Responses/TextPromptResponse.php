@@ -29,10 +29,10 @@ readonly class TextPromptResponse extends BasePromptResponse
         ?string $resolutionGraph = null,
     ) {
         parent::__construct(
-            $id,
-            $name,
             $prompt,
             $type,
+            $id,
+            $name,
             $config,
             $tags,
             $projectId,

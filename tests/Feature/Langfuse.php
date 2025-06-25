@@ -6,6 +6,7 @@ use DIJ\Langfuse\PHP\Enums\PromptType;
 use DIJ\Langfuse\PHP\Exceptions\InvalidPromptTypeException;
 use DIJ\Langfuse\PHP\Langfuse;
 use DIJ\Langfuse\PHP\Responses\ChatPromptResponse;
+use DIJ\Langfuse\PHP\Responses\FallbackPrompt;
 use DIJ\Langfuse\PHP\Responses\PromptListResponse;
 use DIJ\Langfuse\PHP\Responses\TextPromptResponse;
 use DIJ\Langfuse\PHP\Testing\Responses\GetChatPromptResponse;
@@ -83,14 +84,14 @@ it('can list prompts', function (): void {
 
 });
 
-it('returns null when prompt not found', function (): void {
+it('returns null when prompt not found and no fallback is provided', function (): void {
     $mock = new MockHandler([
         new NoPromptFoundResponse,
     ]);
 
     $handlerStack = HandlerStack::create($mock);
     $client = new Client(['handler' => $handlerStack]);
-    $prompt = new Langfuse(new HttpTransporter($client))->prompt()->text('non-existent-prompt');
+    $prompt = new Langfuse(new HttpTransporter($client))->prompt()->text('non-existent-prompt', fallback: null);
 
     expect($prompt)->toBeNull();
 });
@@ -214,4 +215,118 @@ it('can create a chat prompt', function (): void {
     expect($prompt)->toBeInstanceOf(ChatPromptResponse::class)
         ->and($prompt->type)->toBe('chat')
         ->and($prompt->name)->toBe($promptName);
+});
+
+it('uses fallback text prompt when prompt not found', function (): void {
+    $mock = new MockHandler([
+        new NoPromptFoundResponse,
+    ]);
+
+    $handlerStack = HandlerStack::create($mock);
+    $client = new Client(['handler' => $handlerStack]);
+
+    $promptName = 'non-existent-prompt';
+    $fallback = 'This is a fallback prompt for {{name}}';
+
+    /** @var TextPromptResponse $prompt */
+    $prompt = new Langfuse(new HttpTransporter($client))
+        ->prompt()
+        ->text($promptName, fallback: $fallback);
+
+    expect($prompt)->toBeInstanceOf(FallbackPrompt::class)
+        ->and($prompt->prompt)->toBe($fallback)
+        ->and($prompt->type)->toBe(PromptType::TEXT->value);
+});
+
+it('uses fallback chat prompt when prompt not found', function (): void {
+    $mock = new MockHandler([
+        new NoPromptFoundResponse,
+    ]);
+
+    $handlerStack = HandlerStack::create($mock);
+    $client = new Client(['handler' => $handlerStack]);
+
+    $promptName = 'non-existent-chat-prompt';
+    $fallback = [
+        ['role' => 'system', 'content' => 'Fallback system message'],
+        ['role' => 'user', 'content' => 'Fallback user message for {{name}}'],
+    ];
+
+    /** @var ChatPromptResponse $prompt */
+    $prompt = new Langfuse(new HttpTransporter($client))
+        ->prompt()
+        ->chat($promptName, fallback: $fallback);
+
+    expect($prompt)->toBeInstanceOf(FallbackPrompt::class)
+        ->and($prompt->type)->toBe(PromptType::CHAT->value)
+        ->and($prompt->prompt)->toBe($fallback);
+});
+
+it('uses fallback text prompt when connection error occurs', function (): void {
+    $mock = new MockHandler([
+        new \GuzzleHttp\Exception\ConnectException('Connection failed', new \GuzzleHttp\Psr7\Request('GET', 'test')),
+    ]);
+
+    $handlerStack = HandlerStack::create($mock);
+    $client = new Client(['handler' => $handlerStack]);
+
+    $promptName = 'unreachable-prompt';
+    $fallback = 'Connection failed, using fallback: {{message}}';
+
+    /** @var TextPromptResponse $prompt */
+    $prompt = new Langfuse(new HttpTransporter($client))
+        ->prompt()
+        ->text($promptName, fallback: $fallback);
+
+    expect($prompt)->toBeInstanceOf(FallbackPrompt::class)
+        ->and($prompt->type)->toBe(PromptType::TEXT->value)
+        ->and($prompt->prompt)->toBe($fallback);
+});
+
+it('can compile fallback text prompt', function (): void {
+    $mock = new MockHandler([
+        new NoPromptFoundResponse,
+    ]);
+
+    $handlerStack = HandlerStack::create($mock);
+    $client = new Client(['handler' => $handlerStack]);
+
+    $promptName = 'non-existent-prompt';
+    $fallback = 'Hello {{name}}, this is a fallback prompt';
+
+    /** @var TextPromptResponse $prompt */
+    $prompt = new Langfuse(new HttpTransporter($client))
+        ->prompt()
+        ->text($promptName, fallback: $fallback);
+
+    $compiled = $prompt->compile(['name' => 'John']);
+
+    expect($compiled)->toBe('Hello John, this is a fallback prompt');
+});
+
+it('can compile fallback chat prompt', function (): void {
+    $mock = new MockHandler([
+        new NoPromptFoundResponse,
+    ]);
+
+    $handlerStack = HandlerStack::create($mock);
+    $client = new Client(['handler' => $handlerStack]);
+
+    $promptName = 'non-existent-chat-prompt';
+    $fallback = [
+        ['role' => 'system', 'content' => 'You are {{role}}'],
+        ['role' => 'user', 'content' => 'Hello {{name}}'],
+    ];
+
+    /** @var ChatPromptResponse $prompt */
+    $prompt = new Langfuse(new HttpTransporter($client))
+        ->prompt()
+        ->chat($promptName, fallback: $fallback);
+
+    $compiled = $prompt->compile(['role' => 'assistant', 'name' => 'Alice']);
+
+    expect($compiled)->toBe([
+        ['role' => 'system', 'content' => 'You are assistant'],
+        ['role' => 'user', 'content' => 'Hello Alice'],
+    ]);
 });

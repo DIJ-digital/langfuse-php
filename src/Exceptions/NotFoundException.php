@@ -4,12 +4,4 @@ declare(strict_types=1);
 
 namespace DIJ\Langfuse\PHP\Exceptions;
 
-use Exception;
-
-class NotFoundException extends Exception
-{
-    public static function fromMessage(string $message): self
-    {
-        return new self($message);
-    }
-}
+class NotFoundException extends LangfuseException {}
