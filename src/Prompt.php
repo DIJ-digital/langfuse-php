@@ -19,7 +19,7 @@ class Prompt
     public function __construct(private readonly TransporterInterface $transporter) {}
 
     /**
-     * @throws JsonException
+     * @throws InvalidPromptTypeException
      */
     public function text(string $promptName, ?string $version = null, ?string $label = null, ?string $fallback = null): null|TextPromptResponse|FallbackPrompt
     {
@@ -97,7 +97,6 @@ class Prompt
     /**
      * @param  array<int, array{role: string, content: string}>|null  $fallback
      *
-     * @throws JsonException
      * @throws InvalidPromptTypeException
      */
     public function chat(string $promptName, ?string $version = null, ?string $label = null, ?array $fallback = null): null|ChatPromptResponse|FallbackPrompt
