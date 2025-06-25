@@ -15,7 +15,7 @@ This package provides a wrapper around the [Langfuse](https://langfuse.com) Api,
 
 ⚡️ Install the package using **Composer**:
 ```bash  
-composer require dij/langfuse-php  
+composer require dij-digital/langfuse-php  
 ```  
 
 🤙 Modern codebase , refactoring and static analysis in one command
