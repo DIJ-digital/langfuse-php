@@ -20,12 +20,13 @@ class Prompt
 
     /**
      * @throws JsonException
-     * @throws InvalidPromptTypeException
      */
     public function text(string $promptName, ?string $version = null, ?string $label = null, ?string $fallback = null): null|TextPromptResponse|FallbackPrompt
     {
         try {
             $prompt = $this->getPrompt($promptName, PromptType::TEXT, $version, $label);
+        } catch (InvalidPromptTypeException $e) {
+            throw $e;
         } catch (Throwable) {
             $prompt = null;
         }
@@ -103,6 +104,8 @@ class Prompt
     {
         try {
             $prompt = $this->getPrompt($promptName, PromptType::CHAT, $version, $label);
+        } catch (InvalidPromptTypeException $e) {
+            throw $e;
         } catch (Throwable) {
             $prompt = null;
         }
