@@ -34,7 +34,7 @@ it('can get a text prompt', function (): void {
     $promptName = 'general_instructions';
 
     /** @var TextPromptResponse $prompt */
-    $prompt = new Langfuse(new HttpTransporter($client))
+    $prompt = (new Langfuse(new HttpTransporter($client)))
         ->prompt()
         ->text($promptName);
 
@@ -53,7 +53,7 @@ it('returns an error when chat prompt is provided when using text type', functio
 
     $promptName = 'generate_basic_report_input';
 
-    new Langfuse(new HttpTransporter($client))
+    (new Langfuse(new HttpTransporter($client)))
         ->prompt()
         ->text($promptName);
 })->throws(InvalidPromptTypeException::class);
@@ -65,7 +65,7 @@ it('can list prompts', function (): void {
 
     $handlerStack = HandlerStack::create($mock);
     $client = new Client(['handler' => $handlerStack]);
-    $prompts = new Langfuse(new HttpTransporter($client))->prompt()->list();
+    $prompts = (new Langfuse(new HttpTransporter($client)))->prompt()->list();
 
     expect($prompts)->toBeInstanceOf(PromptListResponse::class)
         ->and($prompts->data)->toBeArray()
@@ -91,7 +91,7 @@ it('returns null when prompt not found and no fallback is provided', function ()
 
     $handlerStack = HandlerStack::create($mock);
     $client = new Client(['handler' => $handlerStack]);
-    $prompt = new Langfuse(new HttpTransporter($client))->prompt()->text('non-existent-prompt', fallback: null);
+    $prompt = (new Langfuse(new HttpTransporter($client)))->prompt()->text('non-existent-prompt', fallback: null);
 
     expect($prompt)->toBeNull();
 });
@@ -107,7 +107,7 @@ it('can get a chat prompt', function (): void {
     $promptName = 'chat_test';
 
     /** @var ChatPromptResponse $prompt */
-    $prompt = new Langfuse(new HttpTransporter($client))
+    $prompt = (new Langfuse(new HttpTransporter($client)))
         ->prompt()
         ->chat($promptName);
 
@@ -127,7 +127,7 @@ it('can compile a text prompt', function (): void {
     $promptName = 'generate_basic_report_input';
 
     /** @var TextPromptResponse $prompt */
-    $prompt = new Langfuse(new HttpTransporter($client))
+    $prompt = (new Langfuse(new HttpTransporter($client)))
         ->prompt()
         ->text($promptName);
 
@@ -147,7 +147,7 @@ it('returns an error when text prompt is provided when using text chat', functio
 
     $promptName = 'chat_test';
 
-    new Langfuse(new HttpTransporter($client))
+    (new Langfuse(new HttpTransporter($client)))
         ->prompt()
         ->chat($promptName);
 })->throws(InvalidPromptTypeException::class);
@@ -163,7 +163,7 @@ it('can compile a chat prompt', function (): void {
     $promptName = 'chat_test';
 
     /** @var ChatPromptResponse $prompt */
-    $prompt = new Langfuse(new HttpTransporter($client))
+    $prompt = (new Langfuse(new HttpTransporter($client)))
         ->prompt()
         ->chat($promptName);
 
@@ -186,7 +186,7 @@ it('can create a text prompt', function (): void {
     $promptName = 'test';
 
     /** @var TextPromptResponse $prompt */
-    $prompt = new Langfuse(new HttpTransporter($client))
+    $prompt = (new Langfuse(new HttpTransporter($client)))
         ->prompt()
         ->create($promptName, 'You are a research bot {{name}}', PromptType::TEXT);
 
@@ -205,7 +205,7 @@ it('can create a chat prompt', function (): void {
     $promptName = 'test';
 
     /** @var ChatPromptResponse $prompt */
-    $prompt = new Langfuse(new HttpTransporter($client))
+    $prompt = (new Langfuse(new HttpTransporter($client)))
         ->prompt()
         ->create($promptName, [
             ['role' => 'system', 'content' => 'Test {{name}}'],
@@ -229,7 +229,7 @@ it('uses fallback text prompt when prompt not found', function (): void {
     $fallback = 'This is a fallback prompt for {{name}}';
 
     /** @var TextPromptResponse $prompt */
-    $prompt = new Langfuse(new HttpTransporter($client))
+    $prompt = (new Langfuse(new HttpTransporter($client)))
         ->prompt()
         ->text($promptName, fallback: $fallback);
 
@@ -253,7 +253,7 @@ it('uses fallback chat prompt when prompt not found', function (): void {
     ];
 
     /** @var ChatPromptResponse $prompt */
-    $prompt = new Langfuse(new HttpTransporter($client))
+    $prompt = (new Langfuse(new HttpTransporter($client)))
         ->prompt()
         ->chat($promptName, fallback: $fallback);
 
@@ -274,7 +274,7 @@ it('uses fallback text prompt when connection error occurs', function (): void {
     $fallback = 'Connection failed, using fallback: {{message}}';
 
     /** @var TextPromptResponse $prompt */
-    $prompt = new Langfuse(new HttpTransporter($client))
+    $prompt = (new Langfuse(new HttpTransporter($client)))
         ->prompt()
         ->text($promptName, fallback: $fallback);
 
@@ -295,7 +295,7 @@ it('can compile fallback text prompt', function (): void {
     $fallback = 'Hello {{name}}, this is a fallback prompt';
 
     /** @var TextPromptResponse $prompt */
-    $prompt = new Langfuse(new HttpTransporter($client))
+    $prompt = (new Langfuse(new HttpTransporter($client)))
         ->prompt()
         ->text($promptName, fallback: $fallback);
 
@@ -319,7 +319,7 @@ it('can compile fallback chat prompt', function (): void {
     ];
 
     /** @var ChatPromptResponse $prompt */
-    $prompt = new Langfuse(new HttpTransporter($client))
+    $prompt = (new Langfuse(new HttpTransporter($client)))
         ->prompt()
         ->chat($promptName, fallback: $fallback);
 
