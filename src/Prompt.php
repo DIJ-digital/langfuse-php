@@ -7,7 +7,6 @@ namespace DIJ\Langfuse\PHP;
 use DIJ\Langfuse\PHP\Contracts\TransporterInterface;
 use DIJ\Langfuse\PHP\Enums\PromptType;
 use DIJ\Langfuse\PHP\Exceptions\InvalidPromptTypeException;
-use DIJ\Langfuse\PHP\Exceptions\LangfuseException;
 use DIJ\Langfuse\PHP\Responses\ChatPromptResponse;
 use DIJ\Langfuse\PHP\Responses\FallbackPrompt;
 use DIJ\Langfuse\PHP\Responses\PromptListResponse;
@@ -22,13 +21,12 @@ class Prompt
     /**
      * @throws JsonException
      * @throws InvalidPromptTypeException
-     * @throws Throwable
      */
     public function text(string $promptName, ?string $version = null, ?string $label = null, ?string $fallback = null): null|TextPromptResponse|FallbackPrompt
     {
         try {
             $prompt = $this->getPrompt($promptName, PromptType::TEXT, $version, $label);
-        } catch (LangfuseException) {
+        } catch (Throwable) {
             $prompt = null;
         }
 
@@ -100,13 +98,12 @@ class Prompt
      *
      * @throws JsonException
      * @throws InvalidPromptTypeException
-     * @throws Throwable
      */
     public function chat(string $promptName, ?string $version = null, ?string $label = null, ?array $fallback = null): null|ChatPromptResponse|FallbackPrompt
     {
         try {
             $prompt = $this->getPrompt($promptName, PromptType::CHAT, $version, $label);
-        } catch (LangfuseException) {
+        } catch (Throwable) {
             $prompt = null;
         }
 
