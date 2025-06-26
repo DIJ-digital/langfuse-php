@@ -15,6 +15,7 @@ abstract readonly class BasePromptResponse
      * @param  array<int, string>  $config
      * @param  array<int, string>  $tags
      * @param  array<int, string>  $labels
+     * @param  array<int, mixed>  $resolutionGraph
      */
     public function __construct(
         public string|array $prompt,
@@ -31,6 +32,6 @@ abstract readonly class BasePromptResponse
         public array $labels = [],
         public ?string $isActive = null,
         public ?string $commitMessage = null,
-        public ?string $resolutionGraph = null,
+        public array $resolutionGraph = [],
     ) {}
 }

@@ -11,6 +11,7 @@ readonly class ChatPromptResponse extends BasePromptResponse
      * @param  array<int, string>  $config
      * @param  array<int, string>  $tags
      * @param  array<int, string>  $labels
+     * @param  array<int, mixed>  $resolutionGraph
      */
     public function __construct(
         string $id,
@@ -27,7 +28,7 @@ readonly class ChatPromptResponse extends BasePromptResponse
         array $labels,
         ?string $isActive = null,
         ?string $commitMessage = null,
-        ?string $resolutionGraph = null,
+        array $resolutionGraph = [],
     ) {
         parent::__construct(
             $prompt,
@@ -64,7 +65,7 @@ readonly class ChatPromptResponse extends BasePromptResponse
      * labels: array<int,string>,
      * isActive: string|null,
      * commitMessage: string|null,
-     * resolutionGraph: string|null,
+     * resolutionGraph: array<int, mixed>|null,
      * } $data
      */
     public static function fromArray(array $data): self
@@ -84,7 +85,7 @@ readonly class ChatPromptResponse extends BasePromptResponse
             labels: $data['labels'],
             isActive: $data['isActive'] ?? null,
             commitMessage: $data['commitMessage'] ?? null,
-            resolutionGraph: $data['resolutionGraph'] ?? null,
+            resolutionGraph: $data['resolutionGraph'] ?? [],
         );
     }
 }

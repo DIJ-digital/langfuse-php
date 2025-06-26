@@ -50,7 +50,7 @@ class Prompt
      *  labels: array<int,string>,
      *  isActive: string|null,
      *  commitMessage: string|null,
-     *  resolutionGraph: string|null,
+     * resolutionGraph: array<int, mixed>,
      *  }
      *
      * @throws InvalidPromptTypeException
@@ -82,7 +82,7 @@ class Prompt
          * labels: array<int,string>,
          * isActive: string|null,
          * commitMessage: string|null,
-         * resolutionGraph: string|null,
+         * resolutionGraph: array<int, mixed>,
          * } $data
          */
         $data = json_decode($response->getBody()->getContents(), true, flags: JSON_THROW_ON_ERROR);
@@ -125,7 +125,7 @@ class Prompt
                     'page' => $page,
                     'fromUpdatedAt' => $fromUpdatedAt,
                     'toUpdatedAt' => $toUpdatedAt,
-                ])
+                ]),
             ])]
         );
 
@@ -143,7 +143,7 @@ class Prompt
     /**
      * @param  ($type is PromptType::TEXT ? string : array<int, array{role: string, content: string}>)  $prompt  ,
      * @param  array<int, string>|null  $labels
-     * @param array<int, string>|null $config
+     * @param  array<int, string>|null  $config
      * @param  array<int, string>|null  $tags
      * @return ($type is PromptType::TEXT ? TextPromptResponse : ChatPromptResponse)
      *
