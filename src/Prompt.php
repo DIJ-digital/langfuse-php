@@ -60,7 +60,7 @@ class Prompt
     private function getPrompt(string $promptName, PromptType $type, ?string $version = null, ?string $label = null): array
     {
         $response = $this->transporter->get(
-            uri: sprintf('/api/public/v2/prompts/%s', $promptName),
+            uri: sprintf('/api/public/v2/prompts/%s', urlencode($promptName)),
             options: array_filter([
                 'version' => $version,
                 'label' => $label,
