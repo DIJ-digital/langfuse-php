@@ -140,23 +140,24 @@ class Prompt
 
     /**
      * @param  ($type is PromptType::TEXT ? string : array<int, array{role: string, content: string}>)  $prompt  ,
-     * @param  array<int, string>|null  $config
+     * @param  array<int, string>|null  $labels
+     * @param array<int, string>|null $config
      * @param  array<int, string>|null  $tags
      * @return ($type is PromptType::TEXT ? TextPromptResponse : ChatPromptResponse)
      *
      * @throws JsonException
      */
-    public function create(string $promptName, string|array $prompt, PromptType $type, ?string $label = null, ?array $config = null, ?array $tags = null, ?string $commitMessage = null): TextPromptResponse|ChatPromptResponse
+    public function create(string $promptName, string|array $prompt, PromptType $type, ?array $labels = null, ?array $config = null, ?array $tags = null, ?string $commitMessage = null): TextPromptResponse|ChatPromptResponse
     {
-        $response = $this->transporter->postJson('/api/public/v2/prompts', [
+        $response = $this->transporter->postJson('/api/public/v2/prompts', array_filter([
             'name' => $promptName,
             'prompt' => $prompt,
             'type' => $type->value,
             'config' => $config,
             'tags' => $tags,
-            'label' => $label,
+            'labels' => $labels,
             'commitMessage' => $commitMessage,
-        ]);
+        ]));
 
         $data = json_decode($response->getBody()->getContents(), true, flags: JSON_THROW_ON_ERROR);
 
