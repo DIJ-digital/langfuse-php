@@ -61,10 +61,10 @@ class Prompt
     {
         $response = $this->transporter->get(
             uri: sprintf('/api/public/v2/prompts/%s', urlencode($promptName)),
-            options: array_filter([
+            options: ['query' => array_filter([
                 'version' => $version,
                 'label' => $label,
-            ])
+            ])]
         );
 
         /** @var array{
@@ -116,15 +116,17 @@ class Prompt
     {
         $response = $this->transporter->get(
             uri: '/api/public/v2/prompts',
-            options: array_filter([
-                'name' => $name,
-                'version' => $version,
-                'label' => $label,
-                'tag' => $tag,
-                'page' => $page,
-                'fromUpdatedAt' => $fromUpdatedAt,
-                'toUpdatedAt' => $toUpdatedAt,
-            ])
+            options: ['query' => array_filter([
+                array_filter([
+                    'name' => $name,
+                    'version' => $version,
+                    'label' => $label,
+                    'tag' => $tag,
+                    'page' => $page,
+                    'fromUpdatedAt' => $fromUpdatedAt,
+                    'toUpdatedAt' => $toUpdatedAt,
+                ])
+            ])]
         );
 
         /** @var array{
