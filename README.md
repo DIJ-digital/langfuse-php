@@ -11,7 +11,7 @@ This package provides a wrapper around the [Langfuse](https://langfuse.com) Api,
 - Fallbacks for prompt fetching when an error occurs
 - Fallbacks for prompt fetching when no prompt is found
 
-> **Requires [PHP 8.4](https://php.net/releases/)**
+> **Requires [PHP 8.3](https://php.net/releases/) or [PHP 8.4](https://php.net/releases/)**
 
 ⚡️ Install the package using **Composer**:
 ```bash  
