@@ -1,0 +1,75 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+---
+description: >
+  Rules for the Langfuse PHP client maintained by DIJ. These ensure consistency
+  with architecture decisions, API usage, error handling, testing strategy,
+  static analysis, and formatting guidelines.
+globs:
+  - "src/**/*.php"
+  - "tests/**/*.php"
+  - "composer.json"
+  - "phpstan.neon.dist"
+  - "rector.php"
+  - "phpunit.xml.dist"
+alwaysApply: true
+---
+
+## 💡 Project Overview
+This project is a minimal-dependency PHP 8.3+ wrapper for the Langfuse API. It supports:
+- Fetching and compiling chat/text prompts
+- Creating new prompts
+- Fallback mechanisms for missing prompts
+- Full test suite with 100% type coverage
+
+## 🏗 Architectural Rules
+- The entry point is `Langfuse`, which returns a `Prompt` service.
+- All HTTP communication must go through `TransporterInterface`.
+- Implementations like `HttpTransporter` should wrap Guzzle and handle exceptions using `ExceptionFactory`.
+
+## 🧱 API Handling
+- GET: `transporter->get(...)`
+- POST JSON: `transporter->postJson(...)`
+- Use `json_decode(..., true, JSON_THROW_ON_ERROR)` for decoding responses.
+- All errors should throw specific exceptions from `src/Exceptions`, not generic ones.
+
+## ⚠ Error Handling
+- Use `InvalidPromptTypeException` if a prompt type mismatch occurs.
+- Use fallback prompt objects (`FallbackPrompt`) when a prompt is not found or an exception is thrown.
+- Catch `Throwable` in logic that attempts prompt resolution, but rethrow typed exceptions when appropriate.
+
+## 🧪 Testing Expectations
+- ✳ **Any new feature, service, or response must be accompanied by a test case using Pest.**
+- ✳ **Cursor should prompt to create a test if it is missing or if a new function is added.**
+- Test logic must follow the test-specific rules in `tests.mdc`, including:
+  - Use of Guzzle `MockHandler`
+  - Return type assertions
+  - Compilation correctness
+  - Fallback correctness
+  - Type coverage
+- Cursor must suggest fallback handling tests and failure-path tests when implementing prompt methods.
+
+## 🔍 Static Analysis & Formatting
+- Run `composer codestyle` to apply Pint and Rector automatically.
+- Use `phpstan.neon.dist` at `level: max`.
+- Every commit must pass `composer codestyle`, which includes linting, type-checking, and 100% coverage enforcement.
+
+## 📦 Type Coverage
+- Use `pest --type-coverage --exactly=100` as enforced in `composer test:type-coverage`.
+
+## 🧪 Fallback Design Pattern
+- All prompt methods (`text`, `chat`) must return `null`, `*PromptResponse`, or `FallbackPrompt`.
+- Fallbacks must preserve `PromptType` value.
+
+## 📚 Naming & Structure
+- Namespace prefix: `DIJ\Langfuse\PHP`
+- Enums in `Enums/`, ValueObjects in `ValueObjects/`, Exceptions in `Exceptions/`
+- Do not place logic inside controllers—follow single-responsibility and service abstraction.
+
+## 📜 Documentation
+- `README.md` is canonical for usage examples.
+- Contributions must follow `CONTRIBUTING.md`.
+- Document every public method and parameter using PHPDoc, especially for generics and array shapes.

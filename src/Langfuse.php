@@ -14,4 +14,9 @@ class Langfuse
     {
         return new Prompt($this->transporter);
     }
+
+    public function ingestion(): Ingestion
+    {
+        return new Ingestion($this->transporter);
+    }
 }

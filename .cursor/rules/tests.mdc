@@ -1,0 +1,57 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+---
+description: >
+  Testing rules for the Langfuse PHP repository. Enforces 100% type coverage,
+  structured Pest tests, Guzzle mocking, and use of dedicated response classes.
+globs:
+  - "tests/**/*.php"
+alwaysApply: true
+---
+
+## 🧪 Testing Framework
+- All tests must use **PestPHP**, located under `tests/Feature/`.
+- Use descriptive `it(...)` blocks (e.g. `it('can create a chat prompt')`).
+- Do not use PHPUnit test classes or test methods with `public function testXYZ()`.
+
+## 🧱 Structure & Style
+- Keep test logic flat — do not nest test functions or abstract logic out unless shared across multiple tests.
+- Mock external HTTP calls using Guzzle’s `MockHandler` and `HandlerStack`.
+- Use `new Client(['handler' => $handlerStack])` to inject into `HttpTransporter`.
+
+## 📦 Mocked Responses
+- Use predefined test response classes from `DIJ\Langfuse\PHP\Testing\Responses\*`.
+  - Examples:
+    - `GetPromptResponse`
+    - `NoPromptFoundResponse`
+    - `PostPromptReponse`
+    - `PostChatPromptReponse`
+- Do not construct mocks by hand. Always use the provided `payload()` factory patterns.
+
+## ✅ Expectations
+- Use fluent `expect(...)->toBe...()` assertions.
+- Always verify the type (`toBeInstanceOf(...)`) and critical properties (`type`, `name`, etc).
+- Compile prompts and assert the final result — not just intermediate response classes.
+
+## 📈 Coverage & Type Safety
+- All tests must be compatible with `pest --type-coverage --exactly=100`.
+- If a test touches a branch that is not covered by static analysis, either improve types or adjust logic to ensure coverage.
+- Use `expect(...)->toBeArray()` or `toBeString()` to confirm type where appropriate.
+
+## 💡 Fallback Tests
+- When testing fallback behavior:
+  - Provide a fallback prompt value.
+  - Assert that the response is an instance of `FallbackPrompt`.
+  - Compile the fallback and assert the output (interpolated correctly).
+
+## ⚠ Error Handling Tests
+- If a prompt type mismatch occurs, assert that `InvalidPromptTypeException` is thrown.
+- Connection failures must still produce a `FallbackPrompt`.
+
+## 🧼 Naming Convention
+- Use snake-case files (e.g. `Langfuse.php`) in `tests/Feature/`.
+- Match the subject being tested (e.g. `Langfuse.php` for `Langfuse` class).
+- Avoid deeply nested test folders unless mocking multiple systems.

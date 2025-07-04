@@ -264,7 +264,7 @@ it('uses fallback chat prompt when prompt not found', function (): void {
 
 it('uses fallback text prompt when connection error occurs', function (): void {
     $mock = new MockHandler([
-        new \GuzzleHttp\Exception\ConnectException('Connection failed', new \GuzzleHttp\Psr7\Request('GET', 'test')),
+        new GuzzleHttp\Exception\ConnectException('Connection failed', new GuzzleHttp\Psr7\Request('GET', 'test')),
     ]);
 
     $handlerStack = HandlerStack::create($mock);

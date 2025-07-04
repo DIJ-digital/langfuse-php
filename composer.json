@@ -44,24 +44,11 @@
     "scripts": {
         "lint": "pint",
         "refactor": "rector",
+        "pint": "@php vendor/bin/pint --config https://raw.githubusercontent.com/DIJ-digital/pint-config/main/pint.json",
         "codestyle": [
             "@lint",
             "@refactor",
-            "@test:types"
-        ],
-        "test:type-coverage": "pest --type-coverage --exactly=100",
-        "test:typos": "peck",
-        "test:lint": "@php vendor/bin/pint --config https://raw.githubusercontent.com/DIJ-digital/pint-config/main/pint.json",
-        "test:unit": "pest --coverage --exactly=100",
-        "test:types": "phpstan",
-        "test:refactor": "rector --dry-run",
-        "test": [
-            "@test:lint",
-            "@test:type-coverage",
-            "@test:typos",
-            "@test:unit",
-            "@test:types",
-            "@test:refactor"
+            "@pint"
         ]
     }
 }
