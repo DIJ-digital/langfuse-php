@@ -24,6 +24,8 @@ it('converts isActive string to boolean in text prompt response', function (): v
         'resolutionGraph' => null,
     ];
 
+    // Ignore phpstan error for isActive
+    /** @phpstan-ignore-next-line */
     $response = TextPromptResponse::fromArray($data);
 
     expect($response->isActive)->toBeTrue();
@@ -49,6 +51,8 @@ it('converts false string to boolean in text prompt response', function (): void
         'resolutionGraph' => null,
     ];
 
+    // Ignore phpstan error for isActive
+    /** @phpstan-ignore-next-line */
     $response = TextPromptResponse::fromArray($data);
 
     expect($response->isActive)->toBeFalse();
@@ -98,6 +102,8 @@ it('handles missing isActive field in text prompt response', function (): void {
         'resolutionGraph' => null,
     ];
 
+    // Ignore phpstan error for isActive
+    /** @phpstan-ignore-next-line */
     $response = TextPromptResponse::fromArray($data);
 
     expect($response->isActive)->toBeNull();
