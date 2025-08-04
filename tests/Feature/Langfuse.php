@@ -13,8 +13,8 @@ use DIJ\Langfuse\PHP\Testing\Responses\GetChatPromptResponse;
 use DIJ\Langfuse\PHP\Testing\Responses\GetPromptListResponse;
 use DIJ\Langfuse\PHP\Testing\Responses\GetPromptResponse;
 use DIJ\Langfuse\PHP\Testing\Responses\NoPromptFoundResponse;
-use DIJ\Langfuse\PHP\Testing\Responses\PostChatPromptReponse;
-use DIJ\Langfuse\PHP\Testing\Responses\PostPromptReponse;
+use DIJ\Langfuse\PHP\Testing\Responses\PostChatPromptResponse;
+use DIJ\Langfuse\PHP\Testing\Responses\PostPromptResponse;
 use DIJ\Langfuse\PHP\Transporters\HttpTransporter;
 use DIJ\Langfuse\PHP\ValueObjects\MetaData;
 use DIJ\Langfuse\PHP\ValueObjects\PaginationData;
@@ -175,9 +175,10 @@ it('can compile a chat prompt', function (): void {
             ['role' => 'user', 'content' => 'test user'],
         ]);
 });
+
 it('can create a text prompt', function (): void {
     $mock = new MockHandler([
-        new PostPromptReponse(),
+        new PostPromptResponse(),
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -194,9 +195,10 @@ it('can create a text prompt', function (): void {
         ->and($prompt->type)->toBe('text')
         ->and($prompt->name)->toBe($promptName);
 });
+
 it('can create a chat prompt', function (): void {
     $mock = new MockHandler([
-        new PostChatPromptReponse(),
+        new PostChatPromptResponse(),
     ]);
 
     $handlerStack = HandlerStack::create($mock);

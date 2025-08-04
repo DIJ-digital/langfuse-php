@@ -6,7 +6,7 @@ namespace DIJ\Langfuse\PHP\Testing\Responses;
 
 use GuzzleHttp\Psr7\Response;
 
-class PostPromptReponse extends Response
+class PostPromptResponse extends Response
 {
     /**
      * @param array<string, mixed> $data

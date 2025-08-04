@@ -6,7 +6,7 @@ namespace DIJ\Langfuse\PHP\Testing\Responses;
 
 use GuzzleHttp\Psr7\Response;
 
-class PostChatPromptReponse extends Response
+class PostChatPromptResponse extends Response
 {
     /**
      * @param array<string, mixed> $data
