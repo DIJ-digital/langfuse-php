@@ -12,7 +12,7 @@ readonly class FallbackPrompt extends BasePromptResponse
     use IsCompilable;
 
     /**
-     * @param  ($type is "text" ? string : array<int, array{role: string, content: string}>)  $prompt
+     * @param ($type is "text" ? string : array<int, array{role: string, content: string}>) $prompt
      */
     public function __construct(
         string|array $prompt,
@@ -39,7 +39,7 @@ readonly class FallbackPrompt extends BasePromptResponse
     /**
      * Create a chat fallback prompt
      *
-     * @param  array<int, array{role: string, content: string}>  $content
+     * @param array<int, array{role: string, content: string}> $content
      */
     public static function chat(
         array $content,
