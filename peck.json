@@ -3,7 +3,9 @@
     "ignore": {
         "words": [
             "php",
-            "langfuse"
+            "langfuse",
+            "param",
+            "compilable"
         ]
     }
 }

@@ -6,10 +6,10 @@ namespace DIJ\Langfuse\PHP\Testing\Responses;
 
 use GuzzleHttp\Psr7\Response;
 
-class PostPromptReponse extends Response
+class PostChatPromptResponse extends Response
 {
     /**
-     * @param  array<string, mixed>  $data
+     * @param array<string, mixed> $data
      */
     public function __construct(int $status = 201, array $headers = [], string $version = '1.1', ?string $reason = null, array $data = [])
     {
@@ -17,7 +17,7 @@ class PostPromptReponse extends Response
     }
 
     /**
-     * @param  array<string, mixed>  $data
+     * @param array<string, mixed> $data
      * @return array<string, mixed>
      */
     public function payload(array $data = []): array
@@ -28,10 +28,15 @@ class PostPromptReponse extends Response
             'updatedAt' => '2025-06-23T13:30:25.449Z',
             'projectId' => 'cmb6akern01ppad08i2e0c3dm',
             'createdBy' => 'API',
-            'prompt' => 'example',
+            'prompt' => [
+                [
+                    'role' => 'example',
+                    'content' => 'example',
+                ],
+            ],
             'name' => 'test',
             'version' => 1,
-            'type' => 'text',
+            'type' => 'chat',
             'isActive' => null,
             'config' => [
                 'foo' => 'bar',
