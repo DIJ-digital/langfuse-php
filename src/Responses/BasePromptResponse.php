@@ -12,7 +12,7 @@ abstract readonly class BasePromptResponse
 
     /**
      * @param ($type is 'text' ? string : array<int, array{role:string, content:string}>) $prompt
-     * @param array<int, string> $config
+     * @param array<string, mixed> $config
      * @param array<int, string> $tags
      * @param array<int, string> $labels
      * @param array<int, mixed> $resolutionGraph

@@ -7,7 +7,7 @@ namespace DIJ\Langfuse\PHP\Responses;
 readonly class TextPromptResponse extends BasePromptResponse
 {
     /**
-     * @param array<int, string> $config
+     * @param array<string, mixed> $config
      * @param array<int, string> $tags
      * @param array<int, string> $labels
      * @param array<int, mixed> $resolutionGraph
@@ -54,7 +54,7 @@ readonly class TextPromptResponse extends BasePromptResponse
      * name: string,
      * prompt: string,
      * type: string,
-     * config: array<int, string>,
+     * config: array<string, mixed>,
      * tags: array<int, string>,
      * projectId: string,
      * createdBy: string,
