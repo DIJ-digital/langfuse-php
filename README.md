@@ -1,16 +1,21 @@
 ## Langfuse PHP - A PHP Client for Langfuse API
 This package provides a wrapper around the [Langfuse](https://langfuse.com) Api, allowing you to easily integrate Langfuse into your PHP applications. It uses as few dependencies as possible.
 
-### It supports the following features:
-- Getting a text prompt
-- Getting a chat prompt
-- Compiling a text prompt
-- Compiling a chat prompt
-- Create a text prompt
-- Create a chat prompt
-- Fallbacks for prompt fetching when an error occurs
-- Fallbacks for prompt fetching when no prompt is found
-- Ingestion: send traces and generations via the async `/api/public/ingestion` endpoint
+### This package supports the following features:
+
+#### Prompts
+- Get text prompts
+- Get chat prompts
+- Compile text prompts
+- Compile chat prompts
+- Create text prompts
+- Create chat prompts
+- Fallback handling for prompt fetching errors
+- Fallback handling when no prompt is found
+
+#### Ingestion
+- Create traces
+- Create generations
 
 > **Requires [PHP 8.3](https://php.net/releases/) or [PHP 8.4](https://php.net/releases/)**
 
@@ -20,6 +25,7 @@ composer require dij-digital/langfuse-php
 ```  
 
 ### How to use this package
+
 #### Prompt
 ```php
 use DIJ\Langfuse\PHP;
