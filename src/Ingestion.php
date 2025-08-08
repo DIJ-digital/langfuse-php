@@ -41,7 +41,7 @@ class Ingestion
                 'input' => $input,
                 'output' => $output,
                 'metadata' => $metadata,
-            ], static fn ($v): bool => $v !== null),
+            ], static fn (mixed $v): bool => $v !== null),
         ];
 
         $this->postBatch([$envelope]);
@@ -83,7 +83,7 @@ class Ingestion
                 'promptName' => $promptName,
                 'promptVersion' => $promptVersion,
                 'metadata' => $metadata,
-            ], static fn ($v): bool => $v !== null),
+            ], static fn (mixed $v): bool => $v !== null),
         ];
 
         $this->postBatch([$envelope]);
