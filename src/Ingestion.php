@@ -27,15 +27,16 @@ class Ingestion
         string $name,
         ?string $sessionId = null,
         ?array $metadata = null,
+        ?string $id = null,
     ): void {
         $envelope = [
-            'id' => $this->uuid(),
-            'timestamp' => gmdate('c'),
+            'id' => $id ?? $this->uuid(),
+            'timestamp' => date('c'),
             'type' => 'trace-create',
             'body' => array_filter([
                 'id' => $traceId,
                 'environment' => $this->environment,
-                'timestamp' => gmdate('c'),
+                'timestamp' => date('c'),
                 'sessionId' => $sessionId,
                 'name' => $name,
                 'input' => $input,
@@ -64,16 +65,18 @@ class Ingestion
         ?string $model = null,
         ?array $modelParameters = null,
         ?array $metadata = null,
+        ?string $id = null,
+        ?string $generationId = null,
     ): void {
         $envelope = [
-            'id' => $this->uuid(),
-            'timestamp' => gmdate('c'),
+            'id' => $id ?? $this->uuid(),
+            'timestamp' => date('c'),
             'type' => 'generation-create',
             'body' => array_filter([
-                'id' => $this->uuid(),
+                'id' => $generationId ?? $this->uuid(),
                 'traceId' => $traceId,
                 'environment' => $this->environment,
-                'timestamp' => gmdate('c'),
+                'timestamp' => date('c'),
                 'sessionId' => $sessionId,
                 'name' => $name,
                 'input' => $input,
