@@ -8,7 +8,7 @@ readonly class ChatPromptResponse extends BasePromptResponse
 {
     /**
      * @param array<int, array{role: string, content: string}> $prompt
-     * @param array<int, string> $config
+     * @param array<string, mixed> $config
      * @param array<int, string> $tags
      * @param array<int, string> $labels
      * @param array<int, mixed> $resolutionGraph
@@ -55,7 +55,7 @@ readonly class ChatPromptResponse extends BasePromptResponse
      * name: string,
      * prompt: array<int, array{role: string, content: string}>,
      * type: string,
-     * config: array<int, string>,
+     * config: array<string, mixed>,
      * tags: array<int, string>,
      * projectId: string,
      * createdBy: string,

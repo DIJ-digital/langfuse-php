@@ -14,6 +14,16 @@ class Langfuse
 
     public function prompt(): Prompt
     {
-        return new Prompt($this->transporter);
+        return new Prompt(
+            transporter: $this->transporter,
+        );
+    }
+
+    public function ingestion(string $environment = 'default'): Ingestion
+    {
+        return new Ingestion(
+            transporter: $this->transporter,
+            environment: $environment,
+        );
     }
 }
