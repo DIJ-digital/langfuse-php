@@ -8,9 +8,7 @@ use DIJ\Langfuse\PHP\Contracts\TransporterInterface;
 
 class Langfuse
 {
-    public function __construct(private readonly TransporterInterface $transporter)
-    {
-    }
+    public function __construct(private readonly TransporterInterface $transporter) {}
 
     public function prompt(): Prompt
     {
@@ -24,6 +22,13 @@ class Langfuse
         return new Ingestion(
             transporter: $this->transporter,
             environment: $environment,
+        );
+    }
+
+    public function score(): Score
+    {
+        return new Score(
+            transporter: $this->transporter,
         );
     }
 }
