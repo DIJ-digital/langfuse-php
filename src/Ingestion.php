@@ -12,13 +12,12 @@ class Ingestion
     public function __construct(
         private readonly TransporterInterface $transporter,
         private readonly string $environment = 'default',
-    ) {
-    }
+    ) {}
 
     /**
-     * @param array<string, mixed>|string|null $input
-     * @param array<string, mixed>|string|null $output
-     * @param array<string, mixed>|null $metadata
+     * @param  array<string, mixed>|string|null  $input
+     * @param  array<string, mixed>|string|null  $output
+     * @param  array<string, mixed>|null  $metadata
      */
     public function trace(
         array|string|null $input,
@@ -49,10 +48,10 @@ class Ingestion
     }
 
     /**
-     * @param array<string, mixed>|string $input
-     * @param array<string, mixed>|string $output
-     * @param array<string, mixed>|null $modelParameters
-     * @param array<string, mixed>|null $metadata
+     * @param  array<string, mixed>|string  $input
+     * @param  array<string, mixed>|string  $output
+     * @param  array<string, mixed>|null  $modelParameters
+     * @param  array<string, mixed>|null  $metadata
      */
     public function generation(
         array|string $input,
@@ -93,7 +92,7 @@ class Ingestion
     }
 
     /**
-     * @param array<int, array<string, mixed>> $batch
+     * @param  array<int, array<string, mixed>>  $batch
      */
     private function postBatch(array $batch): void
     {
