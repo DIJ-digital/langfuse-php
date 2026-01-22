@@ -12,7 +12,13 @@ class Langfuse
         private readonly TransporterInterface $transporter,
         private readonly string $environment = 'default',
         private readonly string $label = 'latest',
-    ) {
+    ) {}
+
+    public function media(): Media
+    {
+        return new Media(
+            transporter: $this->transporter,
+        );
     }
 
     public function prompt(): Prompt
