@@ -11,11 +11,10 @@ readonly class MetaData
         public int $limit,
         public int $totalPages,
         public int $totalItems,
-    ) {
-    }
+    ) {}
 
     /**
-     * @param array{page: int, limit: int, totalPages: int, totalItems: int} $data
+     * @param  array{page: int, limit: int, totalPages: int, totalItems: int}  $data
      */
     public static function fromArray(array $data): self
     {
