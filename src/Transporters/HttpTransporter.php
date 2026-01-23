@@ -21,8 +21,7 @@ class HttpTransporter implements TransporterInterface
 {
     public function __construct(
         public readonly ClientInterface $client
-    ) {
-    }
+    ) {}
 
     /**
      * @throws BadRequestException
@@ -45,7 +44,7 @@ class HttpTransporter implements TransporterInterface
     }
 
     /**
-     * @param array<string, mixed> $options
+     * @param  array<string, mixed>  $options
      *
      * @throws BadRequestException
      * @throws ForbiddenException
@@ -61,7 +60,7 @@ class HttpTransporter implements TransporterInterface
     }
 
     /**
-     * @param array<string, mixed> $options
+     * @param  array<string, mixed>  $options
      *
      * @throws BadRequestException
      * @throws ForbiddenException

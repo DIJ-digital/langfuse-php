@@ -16,9 +16,7 @@ use Throwable;
 
 class Prompt
 {
-    public function __construct(private readonly TransporterInterface $transporter)
-    {
-    }
+    public function __construct(private readonly TransporterInterface $transporter) {}
 
     /**
      * @throws InvalidPromptTypeException
@@ -97,7 +95,7 @@ class Prompt
     }
 
     /**
-     * @param array<int, array{role: string, content: string}>|null $fallback
+     * @param  array<int, array{role: string, content: string}>|null  $fallback
      *
      * @throws InvalidPromptTypeException
      */
@@ -143,10 +141,10 @@ class Prompt
     }
 
     /**
-     * @param ($type is PromptType::TEXT ? string : array<int, array{role: string, content: string}>) $prompt ,
-     * @param array<int, string>|null $labels
-     * @param array<int, string>|null $config
-     * @param array<int, string>|null $tags
+     * @param  ($type is PromptType::TEXT ? string : array<int, array{role: string, content: string}>)  $prompt  ,
+     * @param  array<int, string>|null  $labels
+     * @param  array<int, string>|null  $config
+     * @param  array<int, string>|null  $tags
      * @return ($type is PromptType::TEXT ? TextPromptResponse : ChatPromptResponse)
      *
      * @throws JsonException
