@@ -69,6 +69,8 @@ class Trace
      * @param  string|null  $version  Filter by version
      * @param  string|null  $release  Filter by release
      * @param  string|null  $environment  Filter by environment
+     * @param  string|null  $fields  Select fields to return
+     * @param  string|null  $filter  Advanced filter expression
      *
      * @throws JsonException
      */
@@ -85,6 +87,8 @@ class Trace
         ?string $version = null,
         ?string $release = null,
         ?string $environment = null,
+        ?string $fields = null,
+        ?string $filter = null,
     ): TraceListResponse {
         $response = $this->transporter->get(
             uri: '/api/public/traces',
@@ -101,6 +105,8 @@ class Trace
                 'version' => $version,
                 'release' => $release,
                 'environment' => $environment,
+                'fields' => $fields,
+                'filter' => $filter,
             ])]
         );
 
