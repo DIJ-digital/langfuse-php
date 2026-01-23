@@ -20,7 +20,7 @@ use Psr\Http\Message\RequestInterface;
 
 it('can create a numeric score', function (): void {
     $mock = new MockHandler([
-        new GetScoreResponse,
+        new GetScoreResponse(),
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -98,7 +98,7 @@ it('can create a boolean score', function (): void {
 
 it('can get a score by id', function (): void {
     $mock = new MockHandler([
-        new GetScoreResponse,
+        new GetScoreResponse(),
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -115,7 +115,7 @@ it('can get a score by id', function (): void {
 
 it('can list scores', function (): void {
     $mock = new MockHandler([
-        new GetScoreListResponse,
+        new GetScoreListResponse(),
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -140,7 +140,7 @@ it('can list scores with filters', function (): void {
     $history = [];
 
     $mock = new MockHandler([
-        new GetScoreListResponse,
+        new GetScoreListResponse(),
     ]);
 
     $stack = HandlerStack::create($mock);
@@ -206,7 +206,7 @@ it('sends correct payload when creating a score', function (): void {
     $history = [];
 
     $mock = new MockHandler([
-        new GetScoreResponse,
+        new GetScoreResponse(),
     ]);
 
     $stack = HandlerStack::create($mock);

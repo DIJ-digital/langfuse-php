@@ -17,6 +17,13 @@ This package provides a wrapper around the [Langfuse](https://langfuse.com) Api,
 - Create traces
 - Create generations
 
+#### Scores
+- Create scores
+- Get scores
+- List scores
+- Delete scores
+- V2 API support for scores
+
 > **Requires [PHP 8.3](https://php.net/releases/) or [PHP 8.4](https://php.net/releases/)**
 
 ⚡️ Install the package using **Composer**:
@@ -72,6 +79,34 @@ $langfuse->ingestion()->generation(
     modelParameters: ['temperature' => 0.7],
     metadata: ['key' => 'value']
 );
+```
+
+#### Scores
+```php
+use DIJ\Langfuse\PHP;
+use DIJ\Langfuse\PHP\Enums\ScoreDataType;
+
+// Create a score
+$score = $langfuse->score()->create(
+    traceId: 'trace-id-123',
+    name: 'accuracy',
+    value: 0.95,
+    dataType: ScoreDataType::NUMERIC,
+    comment: 'High accuracy score'
+);
+
+// Get a specific score (using v2 API)
+$score = $langfuse->score()->get('score-id-123');
+
+// List scores with filters (using v2 API)
+$scores = $langfuse->score()->list(
+    traceId: 'trace-id-123',
+    dataType: ScoreDataType::NUMERIC,
+    limit: 10
+);
+
+// Delete a score
+$langfuse->score()->delete('score-id-123');
 ```
 
 **Langfuse PHP** was created by **[Tycho Engberink](https://github.com/tychoengberinkDIJ)** and is maintained by **[DIJ Digital](https://dij.digital)** under the **[MIT license](https://opensource.org/licenses/MIT)**.
