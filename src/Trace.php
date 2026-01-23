@@ -65,10 +65,10 @@ class Trace
      * @param  string|null  $fromTimestamp  Filter by minimum timestamp (ISO 8601)
      * @param  string|null  $toTimestamp  Filter by maximum timestamp (ISO 8601)
      * @param  string|null  $orderBy  Order by field (e.g., "timestamp")
-     * @param  string|null  $tags  Filter by tags (comma-separated)
+     * @param  array<int, string>|null  $tags  Filter by tags
      * @param  string|null  $version  Filter by version
      * @param  string|null  $release  Filter by release
-     * @param  string|null  $environment  Filter by environment
+     * @param  array<int, string>|null  $environment  Filter by environment
      * @param  string|null  $fields  Select fields to return
      * @param  string|null  $filter  Advanced filter expression
      *
@@ -83,10 +83,10 @@ class Trace
         ?string $fromTimestamp = null,
         ?string $toTimestamp = null,
         ?string $orderBy = null,
-        ?string $tags = null,
+        ?array $tags = null,
         ?string $version = null,
         ?string $release = null,
-        ?string $environment = null,
+        ?array $environment = null,
         ?string $fields = null,
         ?string $filter = null,
     ): TraceListResponse {

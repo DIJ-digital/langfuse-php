@@ -15,7 +15,7 @@ use GuzzleHttp\HandlerStack;
 
 it('can get a trace by id', function (): void {
     $mock = new MockHandler([
-        new GetTraceResponse,
+        new GetTraceResponse(),
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -81,7 +81,7 @@ it('can list traces with filters', function (): void {
             userId: 'user-123',
             name: 'test-trace',
             sessionId: 'session-xyz789',
-            environment: 'production',
+            environment: ['production'],
         );
 
     expect($traces)->toBeInstanceOf(TraceListResponse::class)
@@ -90,7 +90,7 @@ it('can list traces with filters', function (): void {
 
 it('can get trace with observations and scores', function (): void {
     $mock = new MockHandler([
-        new GetTraceResponse,
+        new GetTraceResponse(),
     ]);
 
     $handlerStack = HandlerStack::create($mock);
