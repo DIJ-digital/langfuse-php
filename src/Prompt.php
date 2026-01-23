@@ -112,20 +112,18 @@ class Prompt
         return $prompt !== null ? ChatPromptResponse::fromArray($prompt) : ($fallback === null ? null : FallbackPrompt::chat($fallback));
     }
 
-    public function list(?string $name = null, ?string $version = null, ?string $label = null, ?string $tag = null, ?int $page = null, ?string $fromUpdatedAt = null, ?string $toUpdatedAt = null): PromptListResponse
+    public function list(?string $name = null, ?string $label = null, ?string $tag = null, ?int $page = null, ?int $limit = null, ?string $fromUpdatedAt = null, ?string $toUpdatedAt = null): PromptListResponse
     {
         $response = $this->transporter->get(
             uri: '/api/public/v2/prompts',
             options: ['query' => array_filter([
-                array_filter([
-                    'name' => $name,
-                    'version' => $version,
-                    'label' => $label,
-                    'tag' => $tag,
-                    'page' => $page,
-                    'fromUpdatedAt' => $fromUpdatedAt,
-                    'toUpdatedAt' => $toUpdatedAt,
-                ]),
+                'name' => $name,
+                'label' => $label,
+                'tag' => $tag,
+                'page' => $page,
+                'limit' => $limit,
+                'fromUpdatedAt' => $fromUpdatedAt,
+                'toUpdatedAt' => $toUpdatedAt,
             ])]
         );
 
