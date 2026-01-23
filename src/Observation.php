@@ -19,7 +19,7 @@ class Observation
     public function get(string $observationId): ObservationResponse
     {
         $response = $this->transporter->get(
-            uri: sprintf('/api/public/observations/%s', urlencode($observationId)),
+            uri: sprintf('/api/public/v2/observations/%s', urlencode($observationId)),
         );
 
         /** @var array{
@@ -78,7 +78,7 @@ class Observation
         ?string $filter = null,
     ): ObservationListResponse {
         $response = $this->transporter->get(
-            uri: '/api/public/observations',
+            uri: '/api/public/v2/observations',
             options: ['query' => array_filter([
                 'page' => $page,
                 'limit' => $limit,
