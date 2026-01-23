@@ -63,7 +63,7 @@ class Observation
      * @throws JsonException
      */
     public function list(
-        ?int $page = null,
+        ?string $cursor = null,
         ?int $limit = null,
         ?string $name = null,
         ?string $userId = null,
@@ -76,11 +76,12 @@ class Observation
         ?string $environment = null,
         ?string $level = null,
         ?string $filter = null,
+        ?string $fields = null,
     ): ObservationListResponse {
         $response = $this->transporter->get(
             uri: '/api/public/v2/observations',
             options: ['query' => array_filter([
-                'page' => $page,
+                'cursor' => $cursor,
                 'limit' => $limit,
                 'name' => $name,
                 'userId' => $userId,
@@ -93,6 +94,7 @@ class Observation
                 'environment' => $environment,
                 'level' => $level,
                 'filter' => $filter,
+                'fields' => $fields,
             ])]
         );
 
