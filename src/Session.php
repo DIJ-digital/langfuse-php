@@ -45,7 +45,7 @@ class Session
         ?int $limit = null,
         ?string $fromTimestamp = null,
         ?string $toTimestamp = null,
-        ?string $environment = null,
+        ?array $environment = null,
     ): SessionListResponse {
         $response = $this->transporter->get(
             uri: '/api/public/sessions',

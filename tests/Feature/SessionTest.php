@@ -15,7 +15,7 @@ use GuzzleHttp\HandlerStack;
 
 it('can get a session by id', function (): void {
     $mock = new MockHandler([
-        new GetSessionResponse,
+        new GetSessionResponse(),
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -73,7 +73,7 @@ it('can list sessions with filters', function (): void {
             limit: 10,
             fromTimestamp: '2025-01-01T00:00:00.000Z',
             toTimestamp: '2025-01-31T23:59:59.999Z',
-            environment: 'production',
+            environment: ['production'],
         );
 
     expect($sessions)->toBeInstanceOf(SessionListResponse::class)
@@ -82,7 +82,7 @@ it('can list sessions with filters', function (): void {
 
 it('can get session with traces', function (): void {
     $mock = new MockHandler([
-        new GetSessionResponse,
+        new GetSessionResponse(),
     ]);
 
     $handlerStack = HandlerStack::create($mock);
