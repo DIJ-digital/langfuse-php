@@ -101,5 +101,6 @@ class GetObservationListResponse extends Response
                 'totalItems' => 2,
             ],
         ];
+
     }
 }

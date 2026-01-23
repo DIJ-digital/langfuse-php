@@ -12,10 +12,12 @@ use DIJ\Langfuse\PHP\ValueObjects\MetaData;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Middleware;
+use Psr\Http\Message\RequestInterface;
 
 it('can get an observation by id', function (): void {
     $mock = new MockHandler([
-        new GetObservationResponse,
+        new GetObservationResponse(),
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -60,11 +62,15 @@ it('can list observations', function (): void {
 });
 
 it('can list observations with filters', function (): void {
+    /** @var array<int, array{request: RequestInterface}> $history */
+    $history = [];
+
     $mock = new MockHandler([
         new GetObservationListResponse,
     ]);
 
     $handlerStack = HandlerStack::create($mock);
+    $handlerStack->push(Middleware::history($history));
     $client = new Client(['handler' => $handlerStack]);
 
     $observations = (new Langfuse(new HttpTransporter($client)))
@@ -74,16 +80,29 @@ it('can list observations with filters', function (): void {
             limit: 10,
             traceId: 'trace-abc123',
             type: 'GENERATION',
-            environment: 'production',
+            environment: ['production'],
         );
 
     expect($observations)->toBeInstanceOf(ObservationListResponse::class)
         ->and($observations->data)->toBeArray();
+
+    expect($history)->toHaveCount(1);
+
+    /** @var array{request: RequestInterface} $first */
+    $first = $history[0];
+    /** @var RequestInterface $request */
+    $request = $first['request'];
+    $query = $request->getUri()->getQuery();
+
+    expect($query)->toContain('page=1')
+        ->and($query)->toContain('limit=10')
+        ->and($query)->toContain('traceId=trace-abc123')
+        ->and($query)->toContain('type=GENERATION');
 });
 
 it('can get observation with usage data', function (): void {
     $mock = new MockHandler([
-        new GetObservationResponse,
+        new GetObservationResponse(),
     ]);
 
     $handlerStack = HandlerStack::create($mock);

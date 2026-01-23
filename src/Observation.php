@@ -19,7 +19,7 @@ class Observation
     public function get(string $observationId): ObservationResponse
     {
         $response = $this->transporter->get(
-            uri: sprintf('/api/public/v2/observations/%s', urlencode($observationId)),
+            uri: sprintf('/api/public/observations/%s', urlencode($observationId)),
         );
 
         /** @var array{
@@ -63,38 +63,36 @@ class Observation
      * @throws JsonException
      */
     public function list(
-        ?string $cursor = null,
+        ?int $page = null,
         ?int $limit = null,
         ?string $name = null,
         ?string $userId = null,
-        ?string $traceId = null,
-        ?string $parentObservationId = null,
         ?string $type = null,
+        ?string $traceId = null,
+        ?string $level = null,
+        ?string $parentObservationId = null,
+        ?array $environment = null,
         ?string $fromStartTime = null,
         ?string $toStartTime = null,
         ?string $version = null,
-        ?string $environment = null,
-        ?string $level = null,
         ?string $filter = null,
-        ?string $fields = null,
     ): ObservationListResponse {
         $response = $this->transporter->get(
-            uri: '/api/public/v2/observations',
+            uri: '/api/public/observations',
             options: ['query' => array_filter([
-                'cursor' => $cursor,
+                'page' => $page,
                 'limit' => $limit,
                 'name' => $name,
                 'userId' => $userId,
-                'traceId' => $traceId,
-                'parentObservationId' => $parentObservationId,
                 'type' => $type,
+                'traceId' => $traceId,
+                'level' => $level,
+                'parentObservationId' => $parentObservationId,
+                'environment' => $environment,
                 'fromStartTime' => $fromStartTime,
                 'toStartTime' => $toStartTime,
                 'version' => $version,
-                'environment' => $environment,
-                'level' => $level,
                 'filter' => $filter,
-                'fields' => $fields,
             ])]
         );
 
