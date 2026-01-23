@@ -74,6 +74,8 @@ class Observation
         ?string $toStartTime = null,
         ?string $version = null,
         ?string $environment = null,
+        ?string $level = null,
+        ?string $filter = null,
     ): ObservationListResponse {
         $response = $this->transporter->get(
             uri: '/api/public/observations',
@@ -89,6 +91,8 @@ class Observation
                 'toStartTime' => $toStartTime,
                 'version' => $version,
                 'environment' => $environment,
+                'level' => $level,
+                'filter' => $filter,
             ])]
         );
 
