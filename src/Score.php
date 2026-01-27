@@ -17,6 +17,8 @@ class Score
     }
 
     /**
+     * @param array<string, mixed>|null $metadata
+     *
      * @throws JsonException
      */
     public function create(
@@ -70,6 +72,7 @@ class Score
     }
 
     /**
+     * @param array<string, string>|null $environment Filter scores by environment
      * @param array<int, string>|null $traceTags Filter scores by trace tags
      *
      * @throws JsonException
