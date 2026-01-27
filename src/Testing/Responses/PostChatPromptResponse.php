@@ -9,7 +9,7 @@ use GuzzleHttp\Psr7\Response;
 class PostChatPromptResponse extends Response
 {
     /**
-     * @param  array<string, mixed>  $data
+     * @param array<string, mixed> $data
      */
     public function __construct(int $status = 201, array $headers = [], string $version = '1.1', ?string $reason = null, array $data = [])
     {
@@ -17,7 +17,7 @@ class PostChatPromptResponse extends Response
     }
 
     /**
-     * @param  array<string, mixed>  $data
+     * @param array<string, mixed> $data
      * @return array<string, mixed>
      */
     public function payload(array $data = []): array
