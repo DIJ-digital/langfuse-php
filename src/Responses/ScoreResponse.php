@@ -24,7 +24,8 @@ readonly class ScoreResponse
         public ?string $createdAt = null,
         public ?string $updatedAt = null,
         public ?string $authorUserId = null,
-    ) {}
+    ) {
+    }
 
     /**
      * @param array{

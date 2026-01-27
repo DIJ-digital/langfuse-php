@@ -12,7 +12,9 @@ use JsonException;
 
 class Score
 {
-    public function __construct(private readonly TransporterInterface $transporter) {}
+    public function __construct(private readonly TransporterInterface $transporter)
+    {
+    }
 
     /**
      * @throws JsonException
@@ -54,8 +56,6 @@ class Score
         return ScoreResponse::fromArray($data);
     }
 
-    
-
     /**
      * @throws JsonException
      */
@@ -69,10 +69,8 @@ class Score
         return ScoreResponse::fromArray($data);
     }
 
-    
-
     /**
-     * @param  array<int, string>|null  $traceTags  Filter scores by trace tags
+     * @param array<int, string>|null $traceTags Filter scores by trace tags
      *
      * @throws JsonException
      */

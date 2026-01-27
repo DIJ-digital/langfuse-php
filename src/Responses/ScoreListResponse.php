@@ -9,12 +9,13 @@ use DIJ\Langfuse\PHP\ValueObjects\MetaData;
 readonly class ScoreListResponse
 {
     /**
-     * @param  array<int, ScoreResponse>  $data
+     * @param array<int, ScoreResponse> $data
      */
     public function __construct(
         public array $data,
         public MetaData $meta,
-    ) {}
+    ) {
+    }
 
     /**
      * @param array{

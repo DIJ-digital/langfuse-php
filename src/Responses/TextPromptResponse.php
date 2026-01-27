@@ -7,10 +7,10 @@ namespace DIJ\Langfuse\PHP\Responses;
 readonly class TextPromptResponse extends BasePromptResponse
 {
     /**
-     * @param  array<string, mixed>  $config
-     * @param  array<int, string>  $tags
-     * @param  array<int, string>  $labels
-     * @param  array<int, mixed>  $resolutionGraph
+     * @param array<string, mixed> $config
+     * @param array<int, string> $tags
+     * @param array<int, string> $labels
+     * @param array<int, mixed> $resolutionGraph
      */
     public function __construct(
         string $id,
