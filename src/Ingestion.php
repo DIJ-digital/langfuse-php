@@ -39,7 +39,7 @@ class Ingestion
      * @param array<string, mixed>|string|null $input
      * @param array<string, mixed>|string|null $output
      * @param array<string, mixed>|null $metadata
-     * @param list<string>|null $tags
+     * @param list< string>|null $tags
      */
     public function trace(
         string $name,
@@ -50,6 +50,7 @@ class Ingestion
         array|string|null $output = null,
         ?array $metadata = null,
         ?array $tags = null,
+        ?string $spanId = null,
     ): Trace {
         $traceId = $traceId ?? self::uuid();
 
@@ -184,5 +185,10 @@ class Ingestion
                 ],
             ],
         ]);
+    }
+
+    private function register(SpanData $span): void
+    {
+        $this->spans[$span->spanId] = $span;
     }
 }
