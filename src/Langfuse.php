@@ -8,9 +8,10 @@ use DIJ\Langfuse\PHP\Contracts\TransporterInterface;
 
 class Langfuse
 {
-    public function __construct(private readonly TransporterInterface $transporter)
-    {
-    }
+    public function __construct(
+        private readonly TransporterInterface $transporter,
+        private readonly string $serviceName = '',
+    ) {}
 
     public function prompt(): Prompt
     {
@@ -24,6 +25,7 @@ class Langfuse
         return new Ingestion(
             transporter: $this->transporter,
             environment: $environment,
+            serviceName: $this->serviceName,
         );
     }
 }
