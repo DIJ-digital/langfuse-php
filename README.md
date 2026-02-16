@@ -58,9 +58,9 @@ $langfuse = new Langfuse(
 $langfuse->prompt()->text(promptName: 'promptName')->compile(params: ['key' => 'value']);
 $langfuse->prompt()->chat(promptName: 'chatName')->compile(params: ['key' => 'value']);
 
-// List all prompts (auto-paginated Generator)
-foreach ($langfuse->prompt()->list() as $item) {
-    echo $item->name;
+// List all prompts (returns a Generator that auto-paginates)
+foreach ($langfuse->prompt()->list() as $prompt) {
+    echo $prompt->name;
 }
 
 // Create a prompt
