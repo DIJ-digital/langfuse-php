@@ -149,15 +149,15 @@ class Prompt
      *
      * We can only update the labels of a prompt
      *
-     * @param array<int, string> $newLabels
+     * @param array<int, string> $labels
      *
      * @throws JsonException
      */
-    public function update(string $promptName, int $version, array $newLabels): TextPromptResponse|ChatPromptResponse
+    public function update(string $promptName, int $version, array $labels): TextPromptResponse|ChatPromptResponse
     {
         $response = $this->transporter->patchJson(
             uri: sprintf('/api/public/v2/prompts/%s/versions/%d', urlencode($promptName), $version),
-            data: ['newLabels' => $newLabels],
+            data: ['newLabels' => $labels],
         );
 
         /** @var array{type: string, id: string, name: string, prompt: string|array<int, array{role: string, content: string}>, config: array<string, mixed>, tags: array<int, string>, projectId: string, createdBy: string, createdAt: string, updatedAt: string, version: int, labels: array<int,string>, isActive: bool|null, commitMessage: string|null, resolutionGraph: array<int, mixed>|null} $data */
