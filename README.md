@@ -1,9 +1,11 @@
 ## Langfuse PHP - A PHP Client for Langfuse API
-This package provides a wrapper around the [Langfuse](https://langfuse.com) Api, allowing you to easily integrate Langfuse into your PHP applications. It uses as few dependencies as possible.
+
+This package provides a wrapper around the [Langfuse](https://langfuse.com) API, allowing you to easily integrate Langfuse into your PHP applications. It uses as few dependencies as possible.
 
 ### This package supports the following features:
 
 #### Prompts
+
 - Get text prompts
 - Get chat prompts
 - Compile text prompts
@@ -16,37 +18,41 @@ This package provides a wrapper around the [Langfuse](https://langfuse.com) Api,
 - Fallback handling when no prompt is found
 
 #### Ingestion
+
 - Create and update traces
 - Create and update spans (with nesting)
 - Create and update generations
 - Automatic `traceId` and `parentObservationId` threading
-- Buffered flush via [OTLP](https://langfuse.com/docs/integrations/native/opentelemetry)
+- Sends directly to the [Langfuse v2 ingestion API](https://api.reference.langfuse.com/#POST/api/public/ingestion)
 
 > **Requires [PHP 8.3](https://php.net/releases/) or [PHP 8.4](https://php.net/releases/)**
 
 Install the package using **Composer**:
-```bash  
-composer require dij-digital/langfuse-php  
-```  
+
+```bash
+composer require dij-digital/langfuse-php
+```
 
 ### How to use this package
 
 #### Setup
+
 ```php
 use DIJ\Langfuse\PHP\Langfuse;
-use DIJ\Langfuse\PHP\Transporters\HttpTransporter;  
+use DIJ\Langfuse\PHP\Transporters\HttpTransporter;
 use GuzzleHttp\Client;
 
 $langfuse = new Langfuse(
-    transporter: new HttpTransporter(new Client([  
+    transporter: new HttpTransporter(new Client([
         'base_uri' => 'https://cloud.langfuse.com',
         'auth' => ['PUBLIC_KEY', 'SECRET_KEY'],
     ])),
-    serviceName: 'my-app', // optional, used as OTLP service.name resource attribute
+    environment: 'production', // optional, defaults to 'default'
 );
 ```
 
 #### Prompts
+
 ```php
 // Get and compile prompts
 $langfuse->prompt()->text(promptName: 'promptName')->compile(params: ['key' => 'value']);
@@ -64,15 +70,15 @@ $langfuse->prompt()->updateLabels(name: 'promptName', version: 1, labels: ['prod
 
 #### Ingestion
 
-The ingestion API follows the same pattern as the [Langfuse Python SDK](https://langfuse.com/docs/sdk/python/low-level-sdk). All operations are buffered in memory -- nothing is sent until you call `flush()` (or the `Ingestion` object is destroyed). One `flush()` serializes everything into a single [OTLP](https://langfuse.com/docs/integrations/native/opentelemetry) HTTP request.
+Every call to `trace()`, `span()`, or `generation()` immediately sends a request to the Langfuse ingestion API. No buffering, no flushing required.
 
 ```php
-$ingestion = $langfuse->ingestion(environment: 'production'); // optional, defaults to 'default'
+$ingestion = $langfuse->ingestion();
 ```
 
 ##### Trace
 
-A trace is the root of an observation tree. Creating a trace buffers it in memory and returns a `Trace` object.
+A trace is the root of an observation tree.
 
 ```php
 $trace = $ingestion->trace(
@@ -81,7 +87,7 @@ $trace = $ingestion->trace(
     input: 'user question',
 );
 
-// Update the trace (mutates in-memory, nothing sent yet)
+// Update the trace (sends immediately)
 $trace->update(
     output: 'final answer',
     metadata: ['duration_ms' => 1234],
@@ -99,7 +105,7 @@ $span = $trace->span(name: 'web-search-batch');
 // Nest a child span under the parent span
 $childSpan = $span->span(name: 'single-search');
 
-// Update and close spans when work is done
+// Update spans when work is done
 $childSpan->update(output: ['results' => 3], endTime: date('c'));
 $span->update(output: ['total' => 3], endTime: date('c'));
 ```
@@ -135,18 +141,10 @@ $gen->update(
 );
 ```
 
-##### Flushing
-
-Call `flush()` to send all buffered spans in a single HTTP request. The destructor also calls `flush()` as a safety net.
-
-```php
-$ingestion->flush();
-```
-
 ##### Full example
 
 ```php
-$ingestion = $langfuse->ingestion(environment: 'production');
+$ingestion = $langfuse->ingestion();
 
 $trace = $ingestion->trace(
     name: 'handle-request',
@@ -168,30 +166,26 @@ $span = $trace->span(name: 'search-batch');
 
 $span->update(output: ['answer' => 'It is 22 degrees.'], endTime: date('c'));
 $trace->update(output: 'It is 22 degrees and sunny.');
-
-// Send everything in one HTTP call
-$ingestion->flush();
 ```
 
 ### Architecture
 
 ```
-Langfuse(transporter, serviceName?)
-├── prompt()                    → Prompt
-└── ingestion(environment?)     → Ingestion
-                                  ├── trace()      → Trace
-                                  │                   ├── update()
-                                  │                   ├── span()       → Span
-                                  │                   └── generation() → Generation
-                                  ├── span()       → Span
-                                  │                   ├── update()
-                                  │                   ├── span()       → Span
-                                  │                   └── generation() → Generation
-                                  ├── generation() → Generation
-                                  │                   └── update()
-                                  └── flush()
+Langfuse(transporter, environment?)
+├── prompt()                → Prompt
+└── ingestion()             → Ingestion
+                              ├── trace()      → Trace
+                              │                   ├── update()
+                              │                   ├── span()       → Span
+                              │                   └── generation() → Generation
+                              ├── span()       → Span
+                              │                   ├── update()
+                              │                   ├── span()       → Span
+                              │                   └── generation() → Generation
+                              └── generation() → Generation
+                                                  └── update()
 ```
 
-All `trace()`, `span()`, `generation()`, and `update()` calls mutate in-memory state only. Call `flush()` to serialize everything into a single OTLP HTTP request to the Langfuse `/api/public/otel/v1/traces` endpoint. The `Ingestion` destructor calls `flush()` automatically as a safety net.
+Each `trace()`, `span()`, `generation()`, and `update()` call sends a request to the Langfuse `POST /api/public/ingestion` endpoint immediately.
 
 **Langfuse PHP** was created by **[Tycho Engberink](https://github.com/tychoengberinkDIJ)** and is maintained by **[DIJ Digital](https://dij.digital)** under the **[MIT license](https://opensource.org/licenses/MIT)**.
