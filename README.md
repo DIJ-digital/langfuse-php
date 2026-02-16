@@ -1,9 +1,11 @@
 ## Langfuse PHP - A PHP Client for Langfuse API
+
 This package provides a wrapper around the [Langfuse](https://langfuse.com) Api, allowing you to easily integrate Langfuse into your PHP applications. It uses as few dependencies as possible.
 
 ### This package supports the following features:
 
 #### Prompts
+
 - Get text prompts
 - Get chat prompts
 - Compile text prompts
@@ -16,6 +18,7 @@ This package provides a wrapper around the [Langfuse](https://langfuse.com) Api,
 - Fallback handling when no prompt is found
 
 #### Ingestion
+
 - Create and update traces
 - Create and update spans (with nesting)
 - Create and update generations
@@ -25,20 +28,22 @@ This package provides a wrapper around the [Langfuse](https://langfuse.com) Api,
 > **Requires [PHP 8.3](https://php.net/releases/) or [PHP 8.4](https://php.net/releases/)**
 
 Install the package using **Composer**:
-```bash  
-composer require dij-digital/langfuse-php  
-```  
+
+```bash
+composer require dij-digital/langfuse-php
+```
 
 ### How to use this package
 
 #### Setup
+
 ```php
 use DIJ\Langfuse\PHP\Langfuse;
-use DIJ\Langfuse\PHP\Transporters\HttpTransporter;  
+use DIJ\Langfuse\PHP\Transporters\HttpTransporter;
 use GuzzleHttp\Client;
 
 $langfuse = new Langfuse(
-    transporter: new HttpTransporter(new Client([  
+    transporter: new HttpTransporter(new Client([
         'base_uri' => 'https://cloud.langfuse.com',
         'auth' => ['PUBLIC_KEY', 'SECRET_KEY'],
     ])),
@@ -47,19 +52,22 @@ $langfuse = new Langfuse(
 ```
 
 #### Prompts
+
 ```php
 // Get and compile prompts
 $langfuse->prompt()->text(promptName: 'promptName')->compile(params: ['key' => 'value']);
 $langfuse->prompt()->chat(promptName: 'chatName')->compile(params: ['key' => 'value']);
 
-// List all prompts (auto-paginated)
-$langfuse->prompt()->list();
+// List all prompts (auto-paginated Generator)
+foreach ($langfuse->prompt()->list() as $item) {
+    echo $item->name;
+}
 
 // Create a prompt
 $langfuse->prompt()->create(promptName: 'promptName', prompt: 'text', type: PromptType::TEXT);
 
 // Update prompt labels
-$langfuse->prompt()->updateLabels(name: 'promptName', version: 1, labels: ['production']);
+$langfuse->prompt()->update(promptName: 'promptName', version: 1, labels: ['production']);
 ```
 
 #### Ingestion
@@ -178,6 +186,11 @@ $ingestion->flush();
 ```
 Langfuse(transporter, serviceName?)
 ├── prompt()                    → Prompt
+│                                 ├── text()     → TextPromptResponse|FallbackPrompt
+│                                 ├── chat()     → ChatPromptResponse|FallbackPrompt
+│                                 ├── list()     → Generator<PromptListItem>
+│                                 ├── create()   → TextPromptResponse|ChatPromptResponse
+│                                 └── update()   → TextPromptResponse|ChatPromptResponse
 └── ingestion(environment?)     → Ingestion
                                   ├── trace()      → Trace
                                   │                   ├── update()
