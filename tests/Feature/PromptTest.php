@@ -7,7 +7,6 @@ use DIJ\Langfuse\PHP\Exceptions\InvalidPromptTypeException;
 use DIJ\Langfuse\PHP\Langfuse;
 use DIJ\Langfuse\PHP\Responses\ChatPromptResponse;
 use DIJ\Langfuse\PHP\Responses\FallbackPrompt;
-use DIJ\Langfuse\PHP\Responses\PromptListResponse;
 use DIJ\Langfuse\PHP\Responses\TextPromptResponse;
 use DIJ\Langfuse\PHP\Testing\Responses\GetChatPromptResponse;
 use DIJ\Langfuse\PHP\Testing\Responses\GetPromptListPageOneResponse;
@@ -19,8 +18,6 @@ use DIJ\Langfuse\PHP\Testing\Responses\PatchPromptLabelsResponse;
 use DIJ\Langfuse\PHP\Testing\Responses\PostChatPromptResponse;
 use DIJ\Langfuse\PHP\Testing\Responses\PostPromptResponse;
 use DIJ\Langfuse\PHP\Transporters\HttpTransporter;
-use DIJ\Langfuse\PHP\ValueObjects\MetaData;
-use DIJ\Langfuse\PHP\ValueObjects\PaginationData;
 use DIJ\Langfuse\PHP\ValueObjects\PromptListItem;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
@@ -28,7 +25,7 @@ use GuzzleHttp\HandlerStack;
 
 it('can get a text prompt', function (): void {
     $mock = new MockHandler([
-        new GetPromptResponse(),
+        new GetPromptResponse,
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -48,7 +45,7 @@ it('can get a text prompt', function (): void {
 
 it('returns an error when chat prompt is provided when using text type', function (): void {
     $mock = new MockHandler([
-        new GetChatPromptResponse(),
+        new GetChatPromptResponse,
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -63,33 +60,23 @@ it('returns an error when chat prompt is provided when using text type', functio
 
 it('can list prompts', function (): void {
     $mock = new MockHandler([
-        new GetPromptListResponse(),
+        new GetPromptListResponse,
     ]);
 
     $handlerStack = HandlerStack::create($mock);
     $client = new Client(['handler' => $handlerStack]);
-    $prompts = (new Langfuse(new HttpTransporter($client)))->prompt()->list();
 
-    expect($prompts)->toBeInstanceOf(PromptListResponse::class)
-        ->and($prompts->data)->toBeArray()
-        ->and($prompts->data)->not->toBeEmpty()
-        ->and($prompts->data[0])->toBeInstanceOf(PromptListItem::class)
-        ->and($prompts->meta)->toBeInstanceOf(MetaData::class)
-        ->and($prompts->meta->page)->toBeNumeric()
-        ->and($prompts->meta->limit)->toBeNumeric()
-        ->and($prompts->meta->totalPages)->toBeNumeric()
-        ->and($prompts->meta->totalItems)->toBeNumeric()
-        ->and($prompts->pagination)->toBeInstanceOf(PaginationData::class)
-        ->and($prompts->pagination->page)->toBeNumeric()
-        ->and($prompts->pagination->limit)->toBeNumeric()
-        ->and($prompts->pagination->totalPages)->toBeNumeric()
-        ->and($prompts->pagination->totalItems)->toBeNumeric();
+    $items = iterator_to_array((new Langfuse(new HttpTransporter($client)))->prompt()->list());
 
+    expect($items)->toBeArray()
+        ->not()->toBeEmpty()
+        ->and($items[0])->toBeInstanceOf(PromptListItem::class)
+        ->and($items[0]->name)->toBe('general_instructions');
 });
 
 it('returns null when prompt not found and no fallback is provided', function (): void {
     $mock = new MockHandler([
-        new NoPromptFoundResponse(),
+        new NoPromptFoundResponse,
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -101,7 +88,7 @@ it('returns null when prompt not found and no fallback is provided', function ()
 
 it('can get a chat prompt', function (): void {
     $mock = new MockHandler([
-        new GetChatPromptResponse(),
+        new GetChatPromptResponse,
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -121,7 +108,7 @@ it('can get a chat prompt', function (): void {
 
 it('can compile a text prompt', function (): void {
     $mock = new MockHandler([
-        new GetPromptResponse(),
+        new GetPromptResponse,
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -142,7 +129,7 @@ it('can compile a text prompt', function (): void {
 
 it('returns an error when text prompt is provided when using text chat', function (): void {
     $mock = new MockHandler([
-        new GetPromptResponse(),
+        new GetPromptResponse,
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -157,7 +144,7 @@ it('returns an error when text prompt is provided when using text chat', functio
 
 it('can compile a chat prompt', function (): void {
     $mock = new MockHandler([
-        new GetChatPromptResponse(),
+        new GetChatPromptResponse,
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -181,7 +168,7 @@ it('can compile a chat prompt', function (): void {
 
 it('can create a text prompt', function (): void {
     $mock = new MockHandler([
-        new PostPromptResponse(),
+        new PostPromptResponse,
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -201,7 +188,7 @@ it('can create a text prompt', function (): void {
 
 it('can create a chat prompt', function (): void {
     $mock = new MockHandler([
-        new PostChatPromptResponse(),
+        new PostChatPromptResponse,
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -224,7 +211,7 @@ it('can create a chat prompt', function (): void {
 
 it('uses fallback text prompt when prompt not found', function (): void {
     $mock = new MockHandler([
-        new NoPromptFoundResponse(),
+        new NoPromptFoundResponse,
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -245,7 +232,7 @@ it('uses fallback text prompt when prompt not found', function (): void {
 
 it('uses fallback chat prompt when prompt not found', function (): void {
     $mock = new MockHandler([
-        new NoPromptFoundResponse(),
+        new NoPromptFoundResponse,
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -290,7 +277,7 @@ it('uses fallback text prompt when connection error occurs', function (): void {
 
 it('can compile fallback text prompt', function (): void {
     $mock = new MockHandler([
-        new NoPromptFoundResponse(),
+        new NoPromptFoundResponse,
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -311,7 +298,7 @@ it('can compile fallback text prompt', function (): void {
 
 it('can compile fallback chat prompt', function (): void {
     $mock = new MockHandler([
-        new NoPromptFoundResponse(),
+        new NoPromptFoundResponse,
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -338,15 +325,15 @@ it('can compile fallback chat prompt', function (): void {
 
 it('can list all prompts across multiple pages', function (): void {
     $mock = new MockHandler([
-        new GetPromptListPageOneResponse(),
-        new GetPromptListPageTwoResponse(),
+        new GetPromptListPageOneResponse,
+        new GetPromptListPageTwoResponse,
     ]);
 
     $handlerStack = HandlerStack::create($mock);
     $client = new Client(['handler' => $handlerStack]);
 
     $items = iterator_to_array(
-        (new Langfuse(new HttpTransporter($client)))->prompt()->listAll()
+        (new Langfuse(new HttpTransporter($client)))->prompt()->list()
     );
 
     expect($items)->toHaveCount(3)
@@ -358,14 +345,14 @@ it('can list all prompts across multiple pages', function (): void {
 
 it('can list all prompts when there is only one page', function (): void {
     $mock = new MockHandler([
-        new GetPromptListResponse(),
+        new GetPromptListResponse,
     ]);
 
     $handlerStack = HandlerStack::create($mock);
     $client = new Client(['handler' => $handlerStack]);
 
     $items = iterator_to_array(
-        (new Langfuse(new HttpTransporter($client)))->prompt()->listAll()
+        (new Langfuse(new HttpTransporter($client)))->prompt()->list()
     );
 
     expect($items)->toHaveCount(5)
@@ -374,7 +361,7 @@ it('can list all prompts when there is only one page', function (): void {
 
 it('can update prompt labels', function (): void {
     $mock = new MockHandler([
-        new PatchPromptLabelsResponse(),
+        new PatchPromptLabelsResponse,
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -382,7 +369,7 @@ it('can update prompt labels', function (): void {
 
     $prompt = (new Langfuse(new HttpTransporter($client)))
         ->prompt()
-        ->updateLabels('general_instructions', 1, ['staging', 'latest']);
+        ->update('general_instructions', 1, ['staging', 'latest']);
 
     expect($prompt)->toBeInstanceOf(TextPromptResponse::class)
         ->and($prompt->name)->toBe('general_instructions')
@@ -406,7 +393,7 @@ it('can update prompt labels on a chat prompt', function (): void {
 
     $prompt = (new Langfuse(new HttpTransporter($client)))
         ->prompt()
-        ->updateLabels('chat_prompt', 1, ['production']);
+        ->update('chat_prompt', 1, ['production']);
 
     expect($prompt)->toBeInstanceOf(ChatPromptResponse::class)
         ->and($prompt->labels)->toBe(['production']);
