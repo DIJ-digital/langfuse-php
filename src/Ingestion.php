@@ -11,6 +11,7 @@ use DIJ\Langfuse\PHP\Ingestion\Span;
 use DIJ\Langfuse\PHP\Ingestion\Trace;
 use DIJ\Langfuse\PHP\Otlp\Serializer;
 use DIJ\Langfuse\PHP\Otlp\SpanData;
+use Throwable;
 
 class Ingestion
 {
@@ -26,16 +27,25 @@ class Ingestion
         private readonly string $environment = 'default',
         private readonly string $serviceName = '',
     ) {
-        $this->serializer = new Serializer;
+        $this->serializer = new Serializer();
+    }
+
+    public function __destruct()
+    {
+        try {
+            $this->flush();
+        } catch (Throwable) {
+            // Silently discard — destructors must not throw (PHP 8+).
+        }
     }
 
     /**
      * Create a trace (root span). Returns a Trace handle for updates and child creation.
      *
-     * @param  array<string, mixed>|string|null  $input
-     * @param  array<string, mixed>|string|null  $output
-     * @param  array<string, mixed>|null  $metadata
-     * @param  array<int, string>|null  $tags
+     * @param array<string, mixed>|string|null $input
+     * @param array<string, mixed>|string|null $output
+     * @param array<string, mixed>|null $metadata
+     * @param array<int, string>|null $tags
      */
     public function trace(
         string $name,
@@ -46,9 +56,10 @@ class Ingestion
         array|string|null $output = null,
         ?array $metadata = null,
         ?array $tags = null,
+        ?string $spanId = null,
     ): Trace {
         $traceId = $traceId ?? self::generateTraceId();
-        $spanId = self::generateSpanId();
+        $spanId = $spanId ?? self::generateSpanId();
 
         $spanData = new SpanData(
             traceId: $traceId,
@@ -87,9 +98,9 @@ class Ingestion
     /**
      * Create a span directly (for manual ID management).
      *
-     * @param  array<string, mixed>|string|null  $input
-     * @param  array<string, mixed>|string|null  $output
-     * @param  array<string, mixed>|null  $metadata
+     * @param array<string, mixed>|string|null $input
+     * @param array<string, mixed>|string|null $output
+     * @param array<string, mixed>|null $metadata
      */
     public function span(
         string $traceId,
@@ -143,10 +154,10 @@ class Ingestion
     /**
      * Create a generation directly (for manual ID management).
      *
-     * @param  array<string, mixed>|string  $input
-     * @param  array<string, mixed>|string  $output
-     * @param  array<string, mixed>|null  $modelParameters
-     * @param  array<string, mixed>|null  $metadata
+     * @param array<string, mixed>|string $input
+     * @param array<string, mixed>|string $output
+     * @param array<string, mixed>|null $modelParameters
+     * @param array<string, mixed>|null $metadata
      */
     public function generation(
         array|string $input,
@@ -194,35 +205,42 @@ class Ingestion
     }
 
     /**
+     * Drain all buffered spans and return the serialized OTLP payload.
+     * Clears the buffer. Returns null if buffer is empty.
+     *
+     * @return array<string, mixed>|null
+     */
+    public function drain(): ?array
+    {
+        if ($this->spans === []) {
+            return null;
+        }
+
+        $spans = $this->spans;
+        $this->spans = [];
+
+        return $this->serializer->serialize(
+            $spans,
+            self::SDK_VERSION,
+            $this->serviceName,
+        );
+    }
+
+    /**
      * Flush all buffered spans to the Langfuse OTLP endpoint.
      */
     public function flush(): void
     {
-        if ($this->spans === []) {
+        $payload = $this->drain();
+
+        if ($payload === null) {
             return;
         }
-
-        $payload = $this->serializer->serialize(
-            $this->spans,
-            self::SDK_VERSION,
-            $this->serviceName,
-        );
 
         $this->transporter->postJson(
             '/api/public/otel/v1/traces',
             $payload,
         );
-
-        $this->spans = [];
-    }
-
-    public function __destruct()
-    {
-        try {
-            $this->flush();
-        } catch (\Throwable) {
-            // Silently discard — destructors must not throw (PHP 8+).
-        }
     }
 
     /**
@@ -235,11 +253,6 @@ class Ingestion
         return $this->spans;
     }
 
-    private function register(SpanData $span): void
-    {
-        $this->spans[$span->spanId] = $span;
-    }
-
     private static function generateTraceId(): string
     {
         return bin2hex(random_bytes(16));
@@ -248,5 +261,10 @@ class Ingestion
     private static function generateSpanId(): string
     {
         return bin2hex(random_bytes(8));
+    }
+
+    private function register(SpanData $span): void
+    {
+        $this->spans[$span->spanId] = $span;
     }
 }
