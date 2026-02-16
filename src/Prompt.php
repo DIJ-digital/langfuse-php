@@ -11,6 +11,8 @@ use DIJ\Langfuse\PHP\Responses\ChatPromptResponse;
 use DIJ\Langfuse\PHP\Responses\FallbackPrompt;
 use DIJ\Langfuse\PHP\Responses\PromptListResponse;
 use DIJ\Langfuse\PHP\Responses\TextPromptResponse;
+use DIJ\Langfuse\PHP\ValueObjects\PromptListItem;
+use Generator;
 use JsonException;
 use Throwable;
 
@@ -206,5 +208,95 @@ class Prompt
          * } $data
          */
         return ChatPromptResponse::fromArray($data);
+    }
+
+    /**
+     * Auto-paginating list that yields all prompt items across all pages.
+     *
+     * @return Generator<int, PromptListItem>
+     *
+     * @throws JsonException
+     */
+    public function listAll(?string $name = null, ?string $version = null, ?string $label = null, ?string $tag = null, ?string $fromUpdatedAt = null, ?string $toUpdatedAt = null): Generator
+    {
+        $page = 1;
+
+        do {
+            $response = $this->list(
+                name: $name,
+                version: $version,
+                label: $label,
+                tag: $tag,
+                page: $page,
+                fromUpdatedAt: $fromUpdatedAt,
+                toUpdatedAt: $toUpdatedAt,
+            );
+
+            foreach ($response->data as $item) {
+                yield $item;
+            }
+
+            $page++;
+        } while ($page <= $response->meta->totalPages);
+    }
+
+    /**
+     * Update labels for a specific prompt version.
+     *
+     * @param array<int, string> $newLabels
+     *
+     * @throws JsonException
+     */
+    public function updateLabels(string $promptName, int $version, array $newLabels): TextPromptResponse|ChatPromptResponse
+    {
+        $response = $this->transporter->patchJson(
+            uri: sprintf('/api/public/v2/prompts/%s/versions/%d', urlencode($promptName), $version),
+            data: ['newLabels' => $newLabels],
+        );
+
+        /** @var array{type: string, id: string, name: string, prompt: string|array<int, array{role: string, content: string}>, config: array<string, mixed>, tags: array<int, string>, projectId: string, createdBy: string, createdAt: string, updatedAt: string, version: int, labels: array<int,string>, isActive: bool|null, commitMessage: string|null, resolutionGraph: array<int, mixed>|null} $data */
+        $data = json_decode($response->getBody()->getContents(), true, flags: JSON_THROW_ON_ERROR);
+
+        if ($data['type'] === PromptType::CHAT->value) {
+            /** @var array{
+             * id: string,
+             * name: string,
+             * prompt: array<int, array{role: string, content: string}>,
+             * type: string,
+             * config: array<string, mixed>,
+             * tags: array<int, string>,
+             * projectId: string,
+             * createdBy: string,
+             * createdAt: string,
+             * updatedAt: string,
+             * version: int,
+             * labels: array<int,string>,
+             * isActive: bool|null,
+             * commitMessage: string|null,
+             * resolutionGraph: array<int, mixed>|null,
+             * } $data
+             */
+            return ChatPromptResponse::fromArray($data);
+        }
+
+        /** @var array{
+         * id: string,
+         * name: string,
+         * prompt: string,
+         * type: string,
+         * config: array<string, mixed>,
+         * tags: array<int, string>,
+         * projectId: string,
+         * createdBy: string,
+         * createdAt: string,
+         * updatedAt: string,
+         * version: int,
+         * labels: array<int,string>,
+         * isActive: bool|null,
+         * commitMessage: string|null,
+         * resolutionGraph: array<int, mixed>|null,
+         * } $data
+         */
+        return TextPromptResponse::fromArray($data);
     }
 }

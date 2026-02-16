@@ -28,4 +28,15 @@ interface TransporterInterface
      * @param array<string, mixed> $options
      */
     public function postJson(string $uri, array $data = [], array $options = []): ResponseInterface;
+
+    /**
+     * @param array<string, mixed> $options
+     */
+    public function delete(string $uri, array $options = []): ResponseInterface;
+
+    /**
+     * @param array<string, mixed> $data
+     * @param array<string, mixed> $options
+     */
+    public function patchJson(string $uri, array $data = [], array $options = []): ResponseInterface;
 }

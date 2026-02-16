@@ -10,9 +10,12 @@ use DIJ\Langfuse\PHP\Responses\FallbackPrompt;
 use DIJ\Langfuse\PHP\Responses\PromptListResponse;
 use DIJ\Langfuse\PHP\Responses\TextPromptResponse;
 use DIJ\Langfuse\PHP\Testing\Responses\GetChatPromptResponse;
+use DIJ\Langfuse\PHP\Testing\Responses\GetPromptListPageOneResponse;
+use DIJ\Langfuse\PHP\Testing\Responses\GetPromptListPageTwoResponse;
 use DIJ\Langfuse\PHP\Testing\Responses\GetPromptListResponse;
 use DIJ\Langfuse\PHP\Testing\Responses\GetPromptResponse;
 use DIJ\Langfuse\PHP\Testing\Responses\NoPromptFoundResponse;
+use DIJ\Langfuse\PHP\Testing\Responses\PatchPromptLabelsResponse;
 use DIJ\Langfuse\PHP\Testing\Responses\PostChatPromptResponse;
 use DIJ\Langfuse\PHP\Testing\Responses\PostPromptResponse;
 use DIJ\Langfuse\PHP\Transporters\HttpTransporter;
@@ -331,4 +334,80 @@ it('can compile fallback chat prompt', function (): void {
         ['role' => 'system', 'content' => 'You are assistant'],
         ['role' => 'user', 'content' => 'Hello Alice'],
     ]);
+});
+
+it('can list all prompts across multiple pages', function (): void {
+    $mock = new MockHandler([
+        new GetPromptListPageOneResponse(),
+        new GetPromptListPageTwoResponse(),
+    ]);
+
+    $handlerStack = HandlerStack::create($mock);
+    $client = new Client(['handler' => $handlerStack]);
+
+    $items = iterator_to_array(
+        (new Langfuse(new HttpTransporter($client)))->prompt()->listAll()
+    );
+
+    expect($items)->toHaveCount(3)
+        ->and($items[0])->toBeInstanceOf(PromptListItem::class)
+        ->and($items[0]->name)->toBe('general_instructions')
+        ->and($items[1]->name)->toBe('generate_basic_report_input')
+        ->and($items[2]->name)->toBe('generate_search_terms');
+});
+
+it('can list all prompts when there is only one page', function (): void {
+    $mock = new MockHandler([
+        new GetPromptListResponse(),
+    ]);
+
+    $handlerStack = HandlerStack::create($mock);
+    $client = new Client(['handler' => $handlerStack]);
+
+    $items = iterator_to_array(
+        (new Langfuse(new HttpTransporter($client)))->prompt()->listAll()
+    );
+
+    expect($items)->toHaveCount(5)
+        ->and($items[0])->toBeInstanceOf(PromptListItem::class);
+});
+
+it('can update prompt labels', function (): void {
+    $mock = new MockHandler([
+        new PatchPromptLabelsResponse(),
+    ]);
+
+    $handlerStack = HandlerStack::create($mock);
+    $client = new Client(['handler' => $handlerStack]);
+
+    $prompt = (new Langfuse(new HttpTransporter($client)))
+        ->prompt()
+        ->updateLabels('general_instructions', 1, ['staging', 'latest']);
+
+    expect($prompt)->toBeInstanceOf(TextPromptResponse::class)
+        ->and($prompt->name)->toBe('general_instructions')
+        ->and($prompt->labels)->toBe(['staging', 'latest']);
+});
+
+it('can update prompt labels on a chat prompt', function (): void {
+    $mock = new MockHandler([
+        new PatchPromptLabelsResponse(data: [
+            'type' => 'chat',
+            'name' => 'chat_prompt',
+            'prompt' => [
+                ['role' => 'system', 'content' => 'You are helpful'],
+            ],
+            'labels' => ['production'],
+        ]),
+    ]);
+
+    $handlerStack = HandlerStack::create($mock);
+    $client = new Client(['handler' => $handlerStack]);
+
+    $prompt = (new Langfuse(new HttpTransporter($client)))
+        ->prompt()
+        ->updateLabels('chat_prompt', 1, ['production']);
+
+    expect($prompt)->toBeInstanceOf(ChatPromptResponse::class)
+        ->and($prompt->labels)->toBe(['production']);
 });
