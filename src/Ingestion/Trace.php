@@ -2,66 +2,49 @@
 
 declare(strict_types=1);
 
-namespace DIJ\Langfuse\PHP;
+namespace DIJ\Langfuse\PHP\Ingestion;
 
-use DIJ\Langfuse\PHP\Contracts\TransporterInterface;
+use Closure;
 use DIJ\Langfuse\PHP\Enums\SpanKind;
-use DIJ\Langfuse\PHP\Ingestion\Generation;
-use DIJ\Langfuse\PHP\Ingestion\Span;
-use DIJ\Langfuse\PHP\Ingestion\Trace;
 use DIJ\Langfuse\PHP\Otlp\Serializer;
 use DIJ\Langfuse\PHP\Otlp\SpanData;
 
-class Ingestion
+class Trace
 {
-    private const SDK_VERSION = '1.0.0';
-
-    /** @var array<string, SpanData> */
-    private array $spans = [];
-
-    private readonly Serializer $serializer;
-
+    /**
+     * @param  Closure(SpanData): void  $register
+     * @param  Closure(): string  $generateSpanId
+     */
     public function __construct(
-        private readonly TransporterInterface $transporter,
-        private readonly string $environment = 'default',
-        private readonly string $serviceName = '',
-    ) {
-        $this->serializer = new Serializer;
+        private readonly SpanData $data,
+        private readonly Closure $register,
+        private readonly Closure $generateSpanId,
+        private readonly string $environment,
+    ) {}
+
+    public string $id {
+        get => $this->data->traceId;
     }
 
     /**
-     * Create a trace (root span). Returns a Trace handle for updates and child creation.
+     * Update this trace with additional attributes.
      *
      * @param  array<string, mixed>|string|null  $input
      * @param  array<string, mixed>|string|null  $output
      * @param  array<string, mixed>|null  $metadata
      * @param  array<int, string>|null  $tags
      */
-    public function trace(
-        string $name,
-        ?string $traceId = null,
-        ?string $sessionId = null,
-        ?string $userId = null,
+    public function update(
+        ?string $name = null,
         array|string|null $input = null,
         array|string|null $output = null,
+        ?string $sessionId = null,
+        ?string $userId = null,
         ?array $metadata = null,
         ?array $tags = null,
-    ): Trace {
-        $traceId = $traceId ?? self::generateTraceId();
-        $spanId = self::generateSpanId();
-
-        $spanData = new SpanData(
-            traceId: $traceId,
-            spanId: $spanId,
-            parentSpanId: null,
-            name: $name,
-            kind: SpanKind::TRACE,
-            startTimeNano: Serializer::nowNano(),
-        );
-
+    ): self {
         $attrs = array_filter([
             'langfuse.trace.name' => $name,
-            'langfuse.environment' => $this->environment,
             'user.id' => $userId,
             'session.id' => $sessionId,
             'langfuse.trace.input' => Serializer::serializeValue($input),
@@ -73,28 +56,20 @@ class Ingestion
             $attrs = array_merge($attrs, Serializer::flattenMetadata('langfuse.trace.metadata', $metadata));
         }
 
-        $spanData->setAttributes($attrs);
-        $this->register($spanData);
+        $this->data->setAttributes($attrs);
 
-        return new Trace(
-            data: $spanData,
-            register: $this->register(...),
-            generateSpanId: self::generateSpanId(...),
-            environment: $this->environment,
-        );
+        return $this;
     }
 
     /**
-     * Create a span directly (for manual ID management).
+     * Create a child span on this trace.
      *
      * @param  array<string, mixed>|string|null  $input
      * @param  array<string, mixed>|string|null  $output
      * @param  array<string, mixed>|null  $metadata
      */
     public function span(
-        string $traceId,
         string $name,
-        ?string $parentObservationId = null,
         array|string|null $input = null,
         array|string|null $output = null,
         ?string $startTime = null,
@@ -102,13 +77,13 @@ class Ingestion
         ?array $metadata = null,
         ?string $spanId = null,
     ): Span {
-        $spanId = $spanId ?? self::generateSpanId();
+        $spanId = $spanId ?? ($this->generateSpanId)();
         $startNano = $startTime !== null ? Serializer::toNanoTimestamp($startTime) : Serializer::nowNano();
 
         $spanData = new SpanData(
-            traceId: $traceId,
+            traceId: $this->data->traceId,
             spanId: $spanId,
-            parentSpanId: $parentObservationId,
+            parentSpanId: $this->data->spanId,
             name: $name,
             kind: SpanKind::SPAN,
             startTimeNano: $startNano,
@@ -130,18 +105,18 @@ class Ingestion
         }
 
         $spanData->setAttributes($attrs);
-        $this->register($spanData);
+        ($this->register)($spanData);
 
         return new Span(
             data: $spanData,
-            register: $this->register(...),
-            generateSpanId: self::generateSpanId(...),
+            register: $this->register,
+            generateSpanId: $this->generateSpanId,
             environment: $this->environment,
         );
     }
 
     /**
-     * Create a generation directly (for manual ID management).
+     * Create a child generation on this trace.
      *
      * @param  array<string, mixed>|string  $input
      * @param  array<string, mixed>|string  $output
@@ -151,9 +126,7 @@ class Ingestion
     public function generation(
         array|string $input,
         array|string $output,
-        string $traceId,
         string $name,
-        ?string $parentObservationId = null,
         ?string $model = null,
         ?array $modelParameters = null,
         ?string $promptName = null,
@@ -161,12 +134,12 @@ class Ingestion
         ?array $metadata = null,
         ?string $generationId = null,
     ): Generation {
-        $generationId = $generationId ?? self::generateSpanId();
+        $generationId = $generationId ?? ($this->generateSpanId)();
 
         $spanData = new SpanData(
-            traceId: $traceId,
+            traceId: $this->data->traceId,
             spanId: $generationId,
-            parentSpanId: $parentObservationId,
+            parentSpanId: $this->data->spanId,
             name: $name,
             kind: SpanKind::GENERATION,
             startTimeNano: Serializer::nowNano(),
@@ -188,65 +161,10 @@ class Ingestion
         }
 
         $spanData->setAttributes($attrs);
-        $this->register($spanData);
+        ($this->register)($spanData);
 
-        return new Generation(data: $spanData);
-    }
-
-    /**
-     * Flush all buffered spans to the Langfuse OTLP endpoint.
-     */
-    public function flush(): void
-    {
-        if ($this->spans === []) {
-            return;
-        }
-
-        $payload = $this->serializer->serialize(
-            $this->spans,
-            self::SDK_VERSION,
-            $this->serviceName,
+        return new Generation(
+            data: $spanData,
         );
-
-        $this->transporter->postJson(
-            '/api/public/otel/v1/traces',
-            $payload,
-        );
-
-        $this->spans = [];
-    }
-
-    public function __destruct()
-    {
-        try {
-            $this->flush();
-        } catch (\Throwable) {
-            // Silently discard — destructors must not throw (PHP 8+).
-        }
-    }
-
-    /**
-     * @return array<string, SpanData>
-     *
-     * @internal Exposed for testing only.
-     */
-    public function getSpans(): array
-    {
-        return $this->spans;
-    }
-
-    private function register(SpanData $span): void
-    {
-        $this->spans[$span->spanId] = $span;
-    }
-
-    private static function generateTraceId(): string
-    {
-        return bin2hex(random_bytes(16));
-    }
-
-    private static function generateSpanId(): string
-    {
-        return bin2hex(random_bytes(8));
     }
 }
