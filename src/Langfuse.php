@@ -10,9 +10,8 @@ class Langfuse
 {
     public function __construct(
         private readonly TransporterInterface $transporter,
-        private readonly string $environment = 'default',
-    ) {
-    }
+        private readonly string $serviceName = '',
+    ) {}
 
     public function prompt(): Prompt
     {
@@ -21,11 +20,12 @@ class Langfuse
         );
     }
 
-    public function ingestion(): Ingestion
+    public function ingestion(string $environment = 'default'): Ingestion
     {
         return new Ingestion(
             transporter: $this->transporter,
-            environment: $this->environment,
+            environment: $environment,
+            serviceName: $this->serviceName,
         );
     }
 }
