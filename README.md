@@ -134,6 +134,8 @@ $gen = $span->generation(
     output: 'summary text',
     name: 'summarize-call',
     model: 'gpt-4o',
+    modelParameters: ['temperature' => 0.7],
+    metadata: ['key' => 'value']
 );
 
 // Update a generation after the LLM responds
