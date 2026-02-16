@@ -58,14 +58,16 @@ $langfuse = new Langfuse(
 $langfuse->prompt()->text(promptName: 'promptName')->compile(params: ['key' => 'value']);
 $langfuse->prompt()->chat(promptName: 'chatName')->compile(params: ['key' => 'value']);
 
-// List all prompts (auto-paginated)
-$langfuse->prompt()->list();
+// List all prompts (returns a Generator that auto-paginates)
+foreach ($langfuse->prompt()->list() as $prompt) {
+    echo $prompt->name;
+}
 
 // Create a prompt
 $langfuse->prompt()->create(promptName: 'promptName', prompt: 'text', type: PromptType::TEXT);
 
 // Update prompt labels
-$langfuse->prompt()->updateLabels(name: 'promptName', version: 1, labels: ['production']);
+$langfuse->prompt()->update(promptName: 'promptName', version: 1, labels: ['production']);
 ```
 
 #### Ingestion
