@@ -19,7 +19,7 @@ use Psr\Http\Message\ResponseInterface;
 /**
  * Create an Ingestion instance with a mock HTTP transport that captures requests.
  *
- * @param  array<int, array{request: RequestInterface, response: ResponseInterface, options: array<string, mixed>}>  $history
+ * @param array<int, array{request: RequestInterface, response: ResponseInterface, options: array<string, mixed>}> $history
  */
 function makeIngestion(array &$history, int $responseCount = 1): Ingestion
 {
@@ -37,7 +37,7 @@ function makeIngestion(array &$history, int $responseCount = 1): Ingestion
 /**
  * Get the OTLP payload from the first flush request.
  *
- * @param  array<int, array{request: RequestInterface, response: ResponseInterface, options: array<string, mixed>}>  $history
+ * @param array<int, array{request: RequestInterface, response: ResponseInterface, options: array<string, mixed>}> $history
  * @return array<string, mixed>
  */
 function getOtlpPayload(array $history, int $index = 0): array
@@ -51,7 +51,7 @@ function getOtlpPayload(array $history, int $index = 0): array
 /**
  * Get the spans array from an OTLP payload.
  *
- * @param  array<string, mixed>  $payload
+ * @param array<string, mixed> $payload
  * @return list<array{traceId: string, spanId: string, name: string, kind: int, startTimeUnixNano: string, endTimeUnixNano: string, attributes: array<int, array{key: string, value: array<string, mixed>}>, status: object, parentSpanId?: string}>
  */
 function getOtlpSpans(array $payload): array
@@ -63,7 +63,7 @@ function getOtlpSpans(array $payload): array
 /**
  * Find a specific OTLP attribute value from a span's attributes array.
  *
- * @param  array<int, array{key: string, value: array<string, mixed>}>  $attributes
+ * @param array<int, array{key: string, value: array<string, mixed>}> $attributes
  */
 function findAttr(array $attributes, string $key): mixed
 {
@@ -84,8 +84,8 @@ function findAttr(array $attributes, string $key): mixed
 /**
  * Find the first span matching a predicate.
  *
- * @param  list<array{traceId: string, spanId: string, name: string, kind: int, startTimeUnixNano: string, endTimeUnixNano: string, attributes: array<int, array{key: string, value: array<string, mixed>}>, status: object, parentSpanId?: string}>  $spans
- * @param  callable(array<string, mixed>): bool  $predicate
+ * @param list<array{traceId: string, spanId: string, name: string, kind: int, startTimeUnixNano: string, endTimeUnixNano: string, attributes: array<int, array{key: string, value: array<string, mixed>}>, status: object, parentSpanId?: string}> $spans
+ * @param callable(array<string, mixed>): bool $predicate
  * @return array{traceId: string, spanId: string, name: string, kind: int, startTimeUnixNano: string, endTimeUnixNano: string, attributes: array<int, array{key: string, value: array<string, mixed>}>, status: object, parentSpanId?: string}|null
  */
 function findSpan(array $spans, callable $predicate): ?array
@@ -541,6 +541,55 @@ it('handles a full trace with spans and generations in one flush', function (): 
         ->and(findAttr($genSpan['attributes'], 'langfuse.observation.model.name'))->toBe('gpt-4o');
 });
 
+// ─── Drain ──────────────────────────────────────────────────────────────────
+
+it('drain returns null when buffer is empty', function (): void {
+    /** @var array<int, array{request: RequestInterface, response: ResponseInterface, options: array<string, mixed>}> $history */
+    $history = [];
+    $ingestion = makeIngestion($history);
+
+    expect($ingestion->drain())->toBeNull()
+        ->and($history)->toHaveCount(0);
+});
+
+it('drain returns serialized payload and clears the buffer without sending HTTP', function (): void {
+    /** @var array<int, array{request: RequestInterface, response: ResponseInterface, options: array<string, mixed>}> $history */
+    $history = [];
+    $ingestion = makeIngestion($history);
+
+    $ingestion->trace(name: 'my-trace');
+    $ingestion->span(traceId: 'abc', name: 'my-span');
+
+    $payload = $ingestion->drain();
+
+    // No HTTP request sent
+    expect($history)->toHaveCount(0);
+
+    // Buffer is cleared
+    expect($ingestion->getSpans())->toHaveCount(0);
+
+    // Payload is valid OTLP structure
+    expect($payload)->toBeArray()
+        ->and($payload)->toHaveKey('resourceSpans');
+
+    $spans = getOtlpSpans($payload);
+
+    expect($spans)->toHaveCount(2);
+});
+
+it('drain followed by flush sends nothing', function (): void {
+    /** @var array<int, array{request: RequestInterface, response: ResponseInterface, options: array<string, mixed>}> $history */
+    $history = [];
+    $ingestion = makeIngestion($history);
+
+    $ingestion->trace(name: 'drained-trace');
+    $ingestion->drain();
+    $ingestion->flush();
+
+    // Only 0 HTTP requests — drain consumed the buffer, flush had nothing to send
+    expect($history)->toHaveCount(0);
+});
+
 // ─── Error handling ─────────────────────────────────────────────────────────
 
 it('throws when flush responds with non-200', function (): void {
@@ -556,3 +605,46 @@ it('throws when flush responds with non-200', function (): void {
     $ingestion->trace(name: 'err');
     $ingestion->flush();
 })->throws(LangfuseException::class);
+
+it('clears the buffer even when flush fails so subsequent flushes are not poisoned', function (): void {
+    // Arrange: first request fails (500), second succeeds (200)
+    $mock = new MockHandler([
+        new Response(500),
+        new Response(200),
+    ]);
+    $stack = HandlerStack::create($mock);
+
+    /** @var array<int, array{request: RequestInterface, response: ResponseInterface, options: array<string, mixed>}> $history */
+    $history = [];
+    $stack->push(Middleware::history($history));
+
+    $client = new Client(['base_uri' => 'https://example.test', 'handler' => $stack]);
+    $ingestion = new Ingestion(
+        transporter: new HttpTransporter($client),
+        environment: 'default',
+    );
+
+    // Act: first flush should fail but clear the buffer
+    $ingestion->trace(name: 'failed-trace');
+
+    try {
+        $ingestion->flush();
+    } catch (LangfuseException) {
+        // Expected
+    }
+
+    // Assert: buffer is empty after failed flush
+    expect($ingestion->getSpans())->toHaveCount(0);
+
+    // Act: second flush with new data should only contain the new trace
+    $ingestion->trace(name: 'success-trace');
+    $ingestion->flush();
+
+    // Assert: second request was sent with only the new trace
+    expect($history)->toHaveCount(2);
+
+    $spans = getOtlpSpans(getOtlpPayload($history, index: 1));
+
+    expect($spans)->toHaveCount(1)
+        ->and($spans[0]['name'])->toBe('success-trace');
+});
