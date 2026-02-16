@@ -182,6 +182,11 @@ Langfuse(transporter, environment?)
 │                                 ├── list()     → Generator<PromptListItem>
 │                                 ├── create()   → TextPromptResponse|ChatPromptResponse
 │                                 └── update()   → TextPromptResponse|ChatPromptResponse
+│                                 ├── text()     → TextPromptResponse|FallbackPrompt
+│                                 ├── chat()     → ChatPromptResponse|FallbackPrompt
+│                                 ├── list()     → Generator<PromptListItem>
+│                                 ├── create()   → TextPromptResponse|ChatPromptResponse
+│                                 └── update()   → TextPromptResponse|ChatPromptResponse
 └── ingestion()             → Ingestion
                               ├── trace()      → Trace
                               │                   ├── update()
