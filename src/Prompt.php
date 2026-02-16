@@ -39,66 +39,6 @@ class Prompt
     }
 
     /**
-     * @return array{
-     *  id: string,
-     *  name: string,
-     *  prompt: ($type is PromptType::TEXT ? string : array<int, array{role: string, content: string}>),
-     *  type: string,
-     *  config: array<string, mixed>,
-     *  tags: array<int, string>,
-     *  projectId: string,
-     *  createdBy: string,
-     *  createdAt: string,
-     *  updatedAt: string,
-     *  version: int,
-     *  labels: array<int,string>,
-     *  isActive: bool|null,
-     *  commitMessage: string|null,
-     * resolutionGraph: array<int, mixed>,
-     *  }
-     *
-     * @throws InvalidPromptTypeException
-     * @throws JsonException
-     * @throws Throwable
-     */
-    private function getPrompt(string $promptName, PromptType $type, ?string $version = null, ?string $label = null): array
-    {
-        $response = $this->transporter->get(
-            uri: sprintf('/api/public/v2/prompts/%s', urlencode($promptName)),
-            options: ['query' => array_filter([
-                'version' => $version,
-                'label' => $label,
-            ])]
-        );
-
-        /** @var array{
-         * id: string,
-         * name: string,
-         * prompt: ($type is "text" ? string : array<int, array{role: string, content: string}>),
-         * type: string,
-         * config: array<string, mixed>,
-         * tags: array<int, string>,
-         * projectId: string,
-         * createdBy: string,
-         * createdAt: string,
-         * updatedAt: string,
-         * version: int,
-         * labels: array<int,string>,
-         * isActive: bool|null,
-         * commitMessage: string|null,
-         * resolutionGraph: array<int, mixed>,
-         * } $data
-         */
-        $data = json_decode($response->getBody()->getContents(), true, flags: JSON_THROW_ON_ERROR);
-
-        if ($data['type'] !== $type->value) {
-            throw InvalidPromptTypeException::fromMessage("{$promptName} returns a prompt of type {$data['type']}, but expected {$type->value}.");
-        }
-
-        return $data;
-    }
-
-    /**
      * @param array<int, array{role: string, content: string}>|null $fallback
      *
      * @throws InvalidPromptTypeException
@@ -116,32 +56,26 @@ class Prompt
         return $prompt !== null ? ChatPromptResponse::fromArray($prompt) : ($fallback === null ? null : FallbackPrompt::chat($fallback));
     }
 
-    public function list(?string $name = null, ?string $version = null, ?string $label = null, ?string $tag = null, ?int $page = null, ?string $fromUpdatedAt = null, ?string $toUpdatedAt = null): PromptListResponse
+    /**
+     * List all prompts, automatically paginating through all pages.
+     *
+     * @return Generator<int, PromptListItem>
+     *
+     * @throws JsonException
+     */
+    public function list(?string $name = null, ?string $version = null, ?string $label = null, ?string $tag = null, ?string $fromUpdatedAt = null, ?string $toUpdatedAt = null): Generator
     {
-        $response = $this->transporter->get(
-            uri: '/api/public/v2/prompts',
-            options: ['query' => array_filter([
-                array_filter([
-                    'name' => $name,
-                    'version' => $version,
-                    'label' => $label,
-                    'tag' => $tag,
-                    'page' => $page,
-                    'fromUpdatedAt' => $fromUpdatedAt,
-                    'toUpdatedAt' => $toUpdatedAt,
-                ]),
-            ])]
-        );
+        $page = 1;
 
-        /** @var array{
-         * data: array<int, array{name: string, tags: array<int, string>, lastUpdatedAt: string, versions: array<int, int>, labels: array<int, string>, lastConfig: array<string, mixed>}>,
-         * meta: array{page: int, limit: int, totalPages: int, totalItems: int},
-         * pagination: array{page: int, limit: int, totalPages: int, totalItems: int}
-         * } $data
-         */
-        $data = json_decode($response->getBody()->getContents(), true, flags: JSON_THROW_ON_ERROR);
+        do {
+            $response = $this->fetchPage($name, $version, $label, $tag, $page, $fromUpdatedAt, $toUpdatedAt);
 
-        return PromptListResponse::fromArray($data);
+            foreach ($response->data as $item) {
+                yield $item;
+            }
+
+            $page++;
+        } while ($page <= $response->meta->totalPages);
     }
 
     /**
@@ -211,43 +145,15 @@ class Prompt
     }
 
     /**
-     * Auto-paginating list that yields all prompt items across all pages.
-     *
-     * @return Generator<int, PromptListItem>
-     *
-     * @throws JsonException
-     */
-    public function listAll(?string $name = null, ?string $version = null, ?string $label = null, ?string $tag = null, ?string $fromUpdatedAt = null, ?string $toUpdatedAt = null): Generator
-    {
-        $page = 1;
-
-        do {
-            $response = $this->list(
-                name: $name,
-                version: $version,
-                label: $label,
-                tag: $tag,
-                page: $page,
-                fromUpdatedAt: $fromUpdatedAt,
-                toUpdatedAt: $toUpdatedAt,
-            );
-
-            foreach ($response->data as $item) {
-                yield $item;
-            }
-
-            $page++;
-        } while ($page <= $response->meta->totalPages);
-    }
-
-    /**
      * Update labels for a specific prompt version.
+     *
+     * We can only update the labels of a prompt
      *
      * @param array<int, string> $newLabels
      *
      * @throws JsonException
      */
-    public function updateLabels(string $promptName, int $version, array $newLabels): TextPromptResponse|ChatPromptResponse
+    public function update(string $promptName, int $version, array $newLabels): TextPromptResponse|ChatPromptResponse
     {
         $response = $this->transporter->patchJson(
             uri: sprintf('/api/public/v2/prompts/%s/versions/%d', urlencode($promptName), $version),
@@ -298,5 +204,96 @@ class Prompt
          * } $data
          */
         return TextPromptResponse::fromArray($data);
+    }
+
+    /**
+     * @throws JsonException
+     */
+    private function fetchPage(?string $name, ?string $version, ?string $label, ?string $tag, int $page, ?string $fromUpdatedAt, ?string $toUpdatedAt): PromptListResponse
+    {
+        $response = $this->transporter->get(
+            uri: '/api/public/v2/prompts',
+            options: ['query' => array_filter([
+                array_filter([
+                    'name' => $name,
+                    'version' => $version,
+                    'label' => $label,
+                    'tag' => $tag,
+                    'page' => $page,
+                    'fromUpdatedAt' => $fromUpdatedAt,
+                    'toUpdatedAt' => $toUpdatedAt,
+                ]),
+            ])]
+        );
+
+        /** @var array{
+         * data: array<int, array{name: string, tags: array<int, string>, lastUpdatedAt: string, versions: array<int, int>, labels: array<int, string>, lastConfig: array<string, mixed>}>,
+         * meta: array{page: int, limit: int, totalPages: int, totalItems: int},
+         * pagination: array{page: int, limit: int, totalPages: int, totalItems: int}
+         * } $data
+         */
+        $data = json_decode($response->getBody()->getContents(), true, flags: JSON_THROW_ON_ERROR);
+
+        return PromptListResponse::fromArray($data);
+    }
+
+    /**
+     * @return array{
+     *  id: string,
+     *  name: string,
+     *  prompt: ($type is PromptType::TEXT ? string : array<int, array{role: string, content: string}>),
+     *  type: string,
+     *  config: array<string, mixed>,
+     *  tags: array<int, string>,
+     *  projectId: string,
+     *  createdBy: string,
+     *  createdAt: string,
+     *  updatedAt: string,
+     *  version: int,
+     *  labels: array<int,string>,
+     *  isActive: bool|null,
+     *  commitMessage: string|null,
+     * resolutionGraph: array<int, mixed>,
+     *  }
+     *
+     * @throws InvalidPromptTypeException
+     * @throws JsonException
+     * @throws Throwable
+     */
+    private function getPrompt(string $promptName, PromptType $type, ?string $version = null, ?string $label = null): array
+    {
+        $response = $this->transporter->get(
+            uri: sprintf('/api/public/v2/prompts/%s', urlencode($promptName)),
+            options: ['query' => array_filter([
+                'version' => $version,
+                'label' => $label,
+            ])]
+        );
+
+        /** @var array{
+         * id: string,
+         * name: string,
+         * prompt: ($type is "text" ? string : array<int, array{role: string, content: string}>),
+         * type: string,
+         * config: array<string, mixed>,
+         * tags: array<int, string>,
+         * projectId: string,
+         * createdBy: string,
+         * createdAt: string,
+         * updatedAt: string,
+         * version: int,
+         * labels: array<int,string>,
+         * isActive: bool|null,
+         * commitMessage: string|null,
+         * resolutionGraph: array<int, mixed>,
+         * } $data
+         */
+        $data = json_decode($response->getBody()->getContents(), true, flags: JSON_THROW_ON_ERROR);
+
+        if ($data['type'] !== $type->value) {
+            throw InvalidPromptTypeException::fromMessage("{$promptName} returns a prompt of type {$data['type']}, but expected {$type->value}.");
+        }
+
+        return $data;
     }
 }
