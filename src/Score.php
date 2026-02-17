@@ -52,10 +52,19 @@ class Score
             'queueId' => $queueId,
         ], static fn (mixed $v): bool => $v !== null));
 
-        /** @var array{id: string, traceId: string, name: string, value: float|string, dataType: string, source: string, observationId: string|null, comment: string|null, configId: string|null, queueId: string|null, stringValue: string|null, createdAt: string|null, updatedAt: string|null, authorUserId: string|null} $data */
+        /** @var array{id: string, traceId?: string, name?: string, value?: float|string, dataType?: string, source?: string} $data */
         $data = json_decode($response->getBody()->getContents(), true, flags: JSON_THROW_ON_ERROR);
 
-        return ScoreResponse::fromArray($data);
+        return ScoreResponse::fromArray([
+            'traceId' => $traceId,
+            'name' => $name,
+            'value' => $value,
+            'dataType' => $dataType?->value ?? ScoreDataType::NUMERIC->value,
+            'source' => 'API',
+            'observationId' => $observationId,
+            'comment' => $comment,
+            ...$data,
+        ]);
     }
 
     /**
