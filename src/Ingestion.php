@@ -11,7 +11,7 @@ use DIJ\Langfuse\PHP\Ingestion\Trace;
 
 class Ingestion
 {
-    private const INGESTION_ENDPOINT = '/api/public/ingestion';
+    private const string INGESTION_ENDPOINT = '/api/public/ingestion';
 
     public function __construct(
         private readonly TransporterInterface $transporter,
@@ -51,7 +51,7 @@ class Ingestion
         ?array $metadata = null,
         ?array $tags = null,
     ): Trace {
-        $traceId = $traceId ?? self::uuid();
+        $traceId ??= self::uuid();
 
         $body = array_filter([
             'id' => $traceId,
@@ -92,7 +92,7 @@ class Ingestion
         ?string $endTime = null,
         ?array $metadata = null,
     ): Span {
-        $spanId = $spanId ?? self::uuid();
+        $spanId ??= self::uuid();
 
         $body = array_filter([
             'id' => $spanId,
@@ -139,7 +139,7 @@ class Ingestion
         ?string $startTime = null,
         ?string $endTime = null,
     ): Generation {
-        $generationId = $generationId ?? self::uuid();
+        $generationId ??= self::uuid();
 
         $body = array_filter([
             'id' => $generationId,
