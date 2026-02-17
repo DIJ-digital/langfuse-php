@@ -11,7 +11,7 @@ readonly class ScoreResponse
 {
     public function __construct(
         public string $id,
-        public string $traceId,
+        public ?string $traceId,
         public string $name,
         public float|string $value,
         public ScoreDataType $dataType,
@@ -30,7 +30,7 @@ readonly class ScoreResponse
     /**
      * @param array{
      *     id: string,
-     *     traceId: string,
+     *     traceId: string|null,
      *     name: string,
      *     value: float|string,
      *     dataType: string,
@@ -49,7 +49,7 @@ readonly class ScoreResponse
     {
         return new self(
             id: $data['id'],
-            traceId: $data['traceId'],
+            traceId: $data['traceId'] ?? null,
             name: $data['name'],
             value: $data['value'],
             dataType: ScoreDataType::from($data['dataType']),

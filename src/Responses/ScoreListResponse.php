@@ -19,7 +19,7 @@ readonly class ScoreListResponse
 
     /**
      * @param array{
-     *     data: array<int, array{id: string, traceId: string, name: string, value: float|string, dataType: string, source: string, observationId: string|null, comment: string|null, configId: string|null, queueId: string|null, stringValue: string|null, createdAt: string|null, updatedAt: string|null, authorUserId: string|null}>,
+     *     data: array<int, array{id: string, traceId: string|null, name: string, value: float|string, dataType: string, source: string, observationId: string|null, comment: string|null, configId: string|null, queueId: string|null, stringValue: string|null, createdAt: string|null, updatedAt: string|null, authorUserId: string|null}>,
      *     meta: array{page: int, limit: int, totalPages: int, totalItems: int}
      * } $data
      */

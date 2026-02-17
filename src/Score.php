@@ -22,9 +22,9 @@ class Score
      * @throws JsonException
      */
     public function create(
-        string $traceId,
         string $name,
         float|string $value,
+        ?string $traceId = null,
         ?ScoreDataType $dataType = null,
         ?string $id = null,
         ?string $observationId = null,
@@ -80,7 +80,7 @@ class Score
     {
         $response = $this->transporter->get(sprintf('/api/public/v2/scores/%s', urlencode($scoreId)));
 
-        /** @var array{id: string, traceId: string, name: string, value: float|string, dataType: string, source: string, observationId: string|null, comment: string|null, configId: string|null, queueId: string|null, stringValue: string|null, createdAt: string|null, updatedAt: string|null, authorUserId: string|null} $data */
+        /** @var array{id: string, traceId: string|null, name: string, value: float|string, dataType: string, source: string, observationId: string|null, comment: string|null, configId: string|null, queueId: string|null, stringValue: string|null, createdAt: string|null, updatedAt: string|null, authorUserId: string|null} $data */
         $data = json_decode($response->getBody()->getContents(), true, flags: JSON_THROW_ON_ERROR);
 
         return ScoreResponse::fromArray($data);
@@ -137,7 +137,7 @@ class Score
 
         $response = $this->transporter->get('/api/public/v2/scores', ['query' => $queryParams]);
 
-        /** @var array{data: array<int, array{id: string, traceId: string, name: string, value: float|string, dataType: string, source: string, observationId: string|null, comment: string|null, configId: string|null, queueId: string|null, stringValue: string|null, createdAt: string|null, updatedAt: string|null, authorUserId: string|null}>, meta: array{page: int, limit: int, totalPages: int, totalItems: int}} $data */
+        /** @var array{data: array<int, array{id: string, traceId: string|null, name: string, value: float|string, dataType: string, source: string, observationId: string|null, comment: string|null, configId: string|null, queueId: string|null, stringValue: string|null, createdAt: string|null, updatedAt: string|null, authorUserId: string|null}>, meta: array{page: int, limit: int, totalPages: int, totalItems: int}} $data */
         $data = json_decode($response->getBody()->getContents(), true, flags: JSON_THROW_ON_ERROR);
 
         return ScoreListResponse::fromArray($data);
