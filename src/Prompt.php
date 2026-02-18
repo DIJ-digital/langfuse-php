@@ -18,17 +18,21 @@ use Throwable;
 
 class Prompt
 {
-    public function __construct(private readonly TransporterInterface $transporter)
-    {
+    public function __construct(
+        private readonly TransporterInterface $transporter,
+        private readonly string $defaultLabel,
+    ) {
     }
 
     /**
+     * Retrieve a text prompt by name. Uses default label if no version or label provided.
+     *
      * @throws InvalidPromptTypeException
      */
-    public function text(string $promptName, ?string $version = null, ?string $label = null, ?string $fallback = null): null|TextPromptResponse|FallbackPrompt
+    public function text(string $promptName, ?int $version = null, ?string $label = null, ?string $fallback = null): null|TextPromptResponse|FallbackPrompt
     {
         try {
-            $prompt = $this->getPrompt($promptName, PromptType::TEXT, $version, $label);
+            $prompt = $this->getPrompt($promptName, PromptType::TEXT, $version, $label ?? $this->defaultLabel);
         } catch (InvalidPromptTypeException $e) {
             throw $e;
         } catch (Throwable) {
@@ -39,14 +43,16 @@ class Prompt
     }
 
     /**
+     * Retrieve a chat prompt by name. Uses default label if no version or label provided.
+     *
      * @param array<int, array{role: string, content: string}>|null $fallback
      *
      * @throws InvalidPromptTypeException
      */
-    public function chat(string $promptName, ?string $version = null, ?string $label = null, ?array $fallback = null): null|ChatPromptResponse|FallbackPrompt
+    public function chat(string $promptName, ?int $version = null, ?string $label = null, ?array $fallback = null): null|ChatPromptResponse|FallbackPrompt
     {
         try {
-            $prompt = $this->getPrompt($promptName, PromptType::CHAT, $version, $label);
+            $prompt = $this->getPrompt($promptName, PromptType::CHAT, $version, $label ?? $this->defaultLabel);
         } catch (InvalidPromptTypeException $e) {
             throw $e;
         } catch (Throwable) {
@@ -57,13 +63,13 @@ class Prompt
     }
 
     /**
-     * List all prompts, automatically paginating through all pages.
+     * List all prompts with optional filtering and automatic pagination.
      *
      * @return Generator<int, PromptListItem>
      *
      * @throws JsonException
      */
-    public function list(?string $name = null, ?string $version = null, ?string $label = null, ?string $tag = null, ?string $fromUpdatedAt = null, ?string $toUpdatedAt = null): Generator
+    public function list(?string $name = null, ?int $version = null, ?string $label = null, ?string $tag = null, ?string $fromUpdatedAt = null, ?string $toUpdatedAt = null): Generator
     {
         $page = 1;
 
@@ -79,9 +85,11 @@ class Prompt
     }
 
     /**
-     * @param ($type is PromptType::TEXT ? string : array<int, array{role: string, content: string}>) $prompt ,
+     * Create a new prompt.
+     *
+     * @param ($type is PromptType::TEXT ? string : array<int, array{role: string, content: string}>) $prompt
      * @param array<int, string>|null $labels
-     * @param array<int, string>|null $config
+     * @param array<string, mixed>|null $config
      * @param array<int, string>|null $tags
      * @return ($type is PromptType::TEXT ? TextPromptResponse : ChatPromptResponse)
      *
@@ -147,8 +155,6 @@ class Prompt
     /**
      * Update labels for a specific prompt version.
      *
-     * We can only update the labels of a prompt
-     *
      * @param array<int, string> $labels
      *
      * @throws JsonException
@@ -209,20 +215,18 @@ class Prompt
     /**
      * @throws JsonException
      */
-    private function fetchPage(?string $name, ?string $version, ?string $label, ?string $tag, int $page, ?string $fromUpdatedAt, ?string $toUpdatedAt): PromptListResponse
+    private function fetchPage(?string $name, ?int $version, ?string $label, ?string $tag, int $page, ?string $fromUpdatedAt, ?string $toUpdatedAt): PromptListResponse
     {
         $response = $this->transporter->get(
             uri: '/api/public/v2/prompts',
             options: ['query' => array_filter([
-                array_filter([
-                    'name' => $name,
-                    'version' => $version,
-                    'label' => $label,
-                    'tag' => $tag,
-                    'page' => $page,
-                    'fromUpdatedAt' => $fromUpdatedAt,
-                    'toUpdatedAt' => $toUpdatedAt,
-                ]),
+                'name' => $name,
+                'version' => $version,
+                'label' => $label,
+                'tag' => $tag,
+                'page' => $page,
+                'fromUpdatedAt' => $fromUpdatedAt,
+                'toUpdatedAt' => $toUpdatedAt,
             ])]
         );
 
@@ -238,29 +242,11 @@ class Prompt
     }
 
     /**
-     * @return array{
-     *  id: string,
-     *  name: string,
-     *  prompt: ($type is PromptType::TEXT ? string : array<int, array{role: string, content: string}>),
-     *  type: string,
-     *  config: array<string, mixed>,
-     *  tags: array<int, string>,
-     *  projectId: string,
-     *  createdBy: string,
-     *  createdAt: string,
-     *  updatedAt: string,
-     *  version: int,
-     *  labels: array<int,string>,
-     *  isActive: bool|null,
-     *  commitMessage: string|null,
-     * resolutionGraph: array<int, mixed>,
-     *  }
-     *
      * @throws InvalidPromptTypeException
      * @throws JsonException
      * @throws Throwable
      */
-    private function getPrompt(string $promptName, PromptType $type, ?string $version = null, ?string $label = null): array
+    private function getPrompt(string $promptName, PromptType $type, ?int $version = null, ?string $label = null): array
     {
         $response = $this->transporter->get(
             uri: sprintf('/api/public/v2/prompts/%s', urlencode($promptName)),

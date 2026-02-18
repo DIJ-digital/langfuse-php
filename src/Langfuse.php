@@ -11,6 +11,7 @@ class Langfuse
     public function __construct(
         private readonly TransporterInterface $transporter,
         private readonly string $environment = 'default',
+        private readonly string $label = 'latest',
     ) {
     }
 
@@ -18,6 +19,7 @@ class Langfuse
     {
         return new Prompt(
             transporter: $this->transporter,
+            defaultLabel: $this->label,
         );
     }
 
