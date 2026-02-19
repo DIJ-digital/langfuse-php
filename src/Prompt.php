@@ -21,8 +21,7 @@ class Prompt
     public function __construct(
         private readonly TransporterInterface $transporter,
         private readonly string $defaultLabel,
-    ) {
-    }
+    ) {}
 
     /**
      * Retrieve a text prompt by name. Uses default label if no version or label provided.
@@ -39,13 +38,18 @@ class Prompt
             $prompt = null;
         }
 
-        return $prompt !== null ? TextPromptResponse::fromArray($prompt) : ($fallback === null ? null : FallbackPrompt::text($fallback));
+        if ($prompt !== null) {
+            /** @var array{id: string, name: string, prompt: string, type: string, config: array<string, mixed>, tags: array<int, string>, projectId: string, createdBy: string, createdAt: string, updatedAt: string, version: int, labels: array<int, string>, isActive: bool|null, commitMessage: string|null, resolutionGraph: array<int, mixed>|null} $prompt */
+            return TextPromptResponse::fromArray($prompt);
+        }
+
+        return $fallback === null ? null : FallbackPrompt::text($fallback);
     }
 
     /**
      * Retrieve a chat prompt by name. Uses default label if no version or label provided.
      *
-     * @param array<int, array{role: string, content: string}>|null $fallback
+     * @param  array<int, array{role: string, content: string}>|null  $fallback
      *
      * @throws InvalidPromptTypeException
      */
@@ -59,7 +63,12 @@ class Prompt
             $prompt = null;
         }
 
-        return $prompt !== null ? ChatPromptResponse::fromArray($prompt) : ($fallback === null ? null : FallbackPrompt::chat($fallback));
+        if ($prompt !== null) {
+            /** @var array{id: string, name: string, prompt: array<int, array{role: string, content: string}>, type: string, config: array<string, mixed>, tags: array<int, string>, projectId: string, createdBy: string, createdAt: string, updatedAt: string, version: int, labels: array<int, string>, isActive: bool|null, commitMessage: string|null, resolutionGraph: array<int, mixed>|null} $prompt */
+            return ChatPromptResponse::fromArray($prompt);
+        }
+
+        return $fallback === null ? null : FallbackPrompt::chat($fallback);
     }
 
     /**
@@ -87,10 +96,10 @@ class Prompt
     /**
      * Create a new prompt.
      *
-     * @param ($type is PromptType::TEXT ? string : array<int, array{role: string, content: string}>) $prompt
-     * @param array<int, string>|null $labels
-     * @param array<string, mixed>|null $config
-     * @param array<int, string>|null $tags
+     * @param  ($type is PromptType::TEXT ? string : array<int, array{role: string, content: string}>)  $prompt
+     * @param  array<int, string>|null  $labels
+     * @param  array<string, mixed>|null  $config
+     * @param  array<int, string>|null  $tags
      * @return ($type is PromptType::TEXT ? TextPromptResponse : ChatPromptResponse)
      *
      * @throws JsonException
@@ -155,7 +164,7 @@ class Prompt
     /**
      * Update labels for a specific prompt version.
      *
-     * @param array<int, string> $labels
+     * @param  array<int, string>  $labels
      *
      * @throws JsonException
      */
@@ -242,6 +251,24 @@ class Prompt
     }
 
     /**
+     * @return array{
+     *     id: string,
+     *     name: string,
+     *     prompt: string|array<int, array{role: string, content: string}>,
+     *     type: string,
+     *     config: array<string, mixed>,
+     *     tags: array<int, string>,
+     *     projectId: string,
+     *     createdBy: string,
+     *     createdAt: string,
+     *     updatedAt: string,
+     *     version: int,
+     *     labels: array<int, string>,
+     *     isActive: bool|null,
+     *     commitMessage: string|null,
+     *     resolutionGraph: array<int, mixed>,
+     * }
+     *
      * @throws InvalidPromptTypeException
      * @throws JsonException
      * @throws Throwable
