@@ -80,4 +80,37 @@ class HttpTransporter implements TransporterInterface
     {
         return $this->request('POST', $uri, array_merge(['body' => json_encode($data)], array_merge(['headers' => ['Content-Type' => 'application/json']], $options)));
     }
+
+    /**
+     * @param array<string, mixed> $options
+     *
+     * @throws BadRequestException
+     * @throws ForbiddenException
+     * @throws InternalServerErrorException
+     * @throws LangfuseException
+     * @throws MethodNotAllowedException
+     * @throws NotFoundException
+     * @throws UnauthorizedException
+     */
+    public function delete(string $uri, array $options = []): ResponseInterface
+    {
+        return $this->request('DELETE', $uri, $options);
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     * @param array<string, mixed> $options
+     *
+     * @throws BadRequestException
+     * @throws ForbiddenException
+     * @throws InternalServerErrorException
+     * @throws LangfuseException
+     * @throws MethodNotAllowedException
+     * @throws NotFoundException
+     * @throws UnauthorizedException
+     */
+    public function patchJson(string $uri, array $data = [], array $options = []): ResponseInterface
+    {
+        return $this->request('PATCH', $uri, array_merge(['body' => json_encode($data)], array_merge(['headers' => ['Content-Type' => 'application/json']], $options)));
+    }
 }
