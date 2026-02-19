@@ -25,6 +25,14 @@ This package provides a wrapper around the [Langfuse](https://langfuse.com) API,
 - Automatic `traceId` and `parentObservationId` threading
 - Sends directly to the [Langfuse v2 ingestion API](https://api.reference.langfuse.com/#POST/api/public/ingestion)
 
+#### Scores
+
+- Create scores
+- Get scores
+- List scores
+- Delete scores
+- V2 API support for scores
+
 > **Requires [PHP 8.3](https://php.net/releases/) or [PHP 8.4](https://php.net/releases/)**
 
 Install the package using **Composer**:
@@ -170,24 +178,62 @@ $span->update(output: ['answer' => 'It is 22 degrees.'], endTime: date('c'));
 $trace->update(output: 'It is 22 degrees and sunny.');
 ```
 
+#### Scores
+
+```php
+use DIJ\Langfuse\PHP;
+use DIJ\Langfuse\PHP\Enums\ScoreDataType;
+
+// Create a score
+$score = $langfuse->score()->create(
+    traceId: 'trace-id-123',
+    name: 'accuracy',
+    value: 0.95,
+    dataType: ScoreDataType::NUMERIC,
+    comment: 'High accuracy score'
+);
+
+// Get a specific score (using v2 API)
+$score = $langfuse->score()->get('score-id-123');
+
+// List scores with filters (using v2 API)
+$scores = $langfuse->score()->list(
+    traceId: 'trace-id-123',
+    dataType: ScoreDataType::NUMERIC,
+    limit: 10
+);
+
+// Delete a score
+$langfuse->score()->delete('score-id-123');
+```
+
 ### Architecture
 
 ```
 Langfuse(transporter, environment?)
 ├── prompt()                → Prompt
-└── ingestion()             → Ingestion
-                              ├── trace()      → Trace
-                              │                   ├── update()
-                              │                   ├── span()       → Span
-                              │                   └── generation() → Generation
-                              ├── span()       → Span
-                              │                   ├── update()
-                              │                   ├── span()       → Span
-                              │                   └── generation() → Generation
-                              └── generation() → Generation
-                                                  └── update()
+│                                 ├── text()     → TextPromptResponse|FallbackPrompt
+│                                 ├── chat()     → ChatPromptResponse|FallbackPrompt
+│                                 ├── list()     → Generator<PromptListItem>
+│                                 ├── create()   → TextPromptResponse|ChatPromptResponse
+│                                 └── update()   → TextPromptResponse|ChatPromptResponse
+├── ingestion()             → Ingestion
+│                             ├── trace()      → Trace
+│                             │                   ├── update()
+│                             │                   ├── span()       → Span
+│                             │                   └── generation() → Generation
+│                             ├── span()       → Span
+│                             │                   ├── update()
+│                             │                   ├── span()       → Span
+│                             │                   └── generation() → Generation
+│                             └── generation() → Generation
+│                                                 └── update()
+└── score()                 → Score
+                              ├── create()
+                              ├── get()
+                              ├── list()
+                              └── delete()
 ```
 
 Each `trace()`, `span()`, `generation()`, and `update()` call sends a request to the Langfuse `POST /api/public/ingestion` endpoint immediately.
-
 **Langfuse PHP** was created by **[Tycho Engberink](https://github.com/tychoengberinkDIJ)** and is maintained by **[DIJ Digital](https://dij.digital)** under the **[MIT license](https://opensource.org/licenses/MIT)**.

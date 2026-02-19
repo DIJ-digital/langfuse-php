@@ -1,11 +1,6 @@
 {
     "preset": "base",
     "ignore": {
-        "words": [
-            "php",
-            "langfuse",
-            "param",
-            "compilable"
-        ]
+        "words": ["php", "langfuse", "param", "compilable", "eval"]
     }
 }

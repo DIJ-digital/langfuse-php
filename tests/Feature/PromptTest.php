@@ -25,7 +25,7 @@ use GuzzleHttp\HandlerStack;
 
 it('can get a text prompt', function (): void {
     $mock = new MockHandler([
-        new GetPromptResponse,
+        new GetPromptResponse(),
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -45,7 +45,7 @@ it('can get a text prompt', function (): void {
 
 it('returns an error when chat prompt is provided when using text type', function (): void {
     $mock = new MockHandler([
-        new GetChatPromptResponse,
+        new GetChatPromptResponse(),
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -60,7 +60,7 @@ it('returns an error when chat prompt is provided when using text type', functio
 
 it('can list prompts', function (): void {
     $mock = new MockHandler([
-        new GetPromptListResponse,
+        new GetPromptListResponse(),
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -76,7 +76,7 @@ it('can list prompts', function (): void {
 
 it('returns null when prompt not found and no fallback is provided', function (): void {
     $mock = new MockHandler([
-        new NoPromptFoundResponse,
+        new NoPromptFoundResponse(),
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -88,7 +88,7 @@ it('returns null when prompt not found and no fallback is provided', function ()
 
 it('can get a chat prompt', function (): void {
     $mock = new MockHandler([
-        new GetChatPromptResponse,
+        new GetChatPromptResponse(),
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -108,7 +108,7 @@ it('can get a chat prompt', function (): void {
 
 it('can compile a text prompt', function (): void {
     $mock = new MockHandler([
-        new GetPromptResponse,
+        new GetPromptResponse(),
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -129,7 +129,7 @@ it('can compile a text prompt', function (): void {
 
 it('returns an error when text prompt is provided when using text chat', function (): void {
     $mock = new MockHandler([
-        new GetPromptResponse,
+        new GetPromptResponse(),
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -144,7 +144,7 @@ it('returns an error when text prompt is provided when using text chat', functio
 
 it('can compile a chat prompt', function (): void {
     $mock = new MockHandler([
-        new GetChatPromptResponse,
+        new GetChatPromptResponse(),
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -168,7 +168,7 @@ it('can compile a chat prompt', function (): void {
 
 it('can create a text prompt', function (): void {
     $mock = new MockHandler([
-        new PostPromptResponse,
+        new PostPromptResponse(),
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -188,7 +188,7 @@ it('can create a text prompt', function (): void {
 
 it('can create a chat prompt', function (): void {
     $mock = new MockHandler([
-        new PostChatPromptResponse,
+        new PostChatPromptResponse(),
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -211,7 +211,7 @@ it('can create a chat prompt', function (): void {
 
 it('uses fallback text prompt when prompt not found', function (): void {
     $mock = new MockHandler([
-        new NoPromptFoundResponse,
+        new NoPromptFoundResponse(),
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -232,7 +232,7 @@ it('uses fallback text prompt when prompt not found', function (): void {
 
 it('uses fallback chat prompt when prompt not found', function (): void {
     $mock = new MockHandler([
-        new NoPromptFoundResponse,
+        new NoPromptFoundResponse(),
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -277,7 +277,7 @@ it('uses fallback text prompt when connection error occurs', function (): void {
 
 it('can compile fallback text prompt', function (): void {
     $mock = new MockHandler([
-        new NoPromptFoundResponse,
+        new NoPromptFoundResponse(),
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -298,7 +298,7 @@ it('can compile fallback text prompt', function (): void {
 
 it('can compile fallback chat prompt', function (): void {
     $mock = new MockHandler([
-        new NoPromptFoundResponse,
+        new NoPromptFoundResponse(),
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -325,8 +325,8 @@ it('can compile fallback chat prompt', function (): void {
 
 it('can list all prompts across multiple pages', function (): void {
     $mock = new MockHandler([
-        new GetPromptListPageOneResponse,
-        new GetPromptListPageTwoResponse,
+        new GetPromptListPageOneResponse(),
+        new GetPromptListPageTwoResponse(),
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -345,7 +345,7 @@ it('can list all prompts across multiple pages', function (): void {
 
 it('can list all prompts when there is only one page', function (): void {
     $mock = new MockHandler([
-        new GetPromptListResponse,
+        new GetPromptListResponse(),
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -361,7 +361,7 @@ it('can list all prompts when there is only one page', function (): void {
 
 it('can update prompt labels', function (): void {
     $mock = new MockHandler([
-        new PatchPromptLabelsResponse,
+        new PatchPromptLabelsResponse(),
     ]);
 
     $handlerStack = HandlerStack::create($mock);
