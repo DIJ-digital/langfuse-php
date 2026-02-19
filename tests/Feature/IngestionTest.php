@@ -113,7 +113,7 @@ it('creates a trace with userId and sessionId', function (): void {
     $ingestion = makeIngestion($history);
 
     // Act
-    $ingestion->trace(name: 'test-trace', userId: 'user-123', sessionId: 'sess-456');
+    $ingestion->trace(name: 'test-trace', sessionId: 'sess-456', userId: 'user-123');
 
     // Assert
     $body = getEventBody($history);
@@ -166,7 +166,7 @@ it('updates a trace with a second POST', function (): void {
 
     // Act
     $trace = $ingestion->trace(name: 'my-trace', input: 'start');
-    $result = $trace->update(output: 'final result', userId: 'user-456');
+    $result = $trace->update(userId: 'user-456', output: 'final result');
 
     // Assert
     expect($result)->toBe($trace)
@@ -259,10 +259,10 @@ it('creates a generation with full payload', function (): void {
         name: 'test-generation',
         input: ['messages' => [['role' => 'user', 'content' => 'Hi']]],
         output: 'Hello',
-        promptName: 'prompt-x',
-        promptVersion: 3,
         model: 'gpt-4o',
         modelParameters: ['temperature' => 0.2],
+        promptName: 'prompt-x',
+        promptVersion: 3,
         metadata: ['source' => 'test'],
     );
 

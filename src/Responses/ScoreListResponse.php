@@ -26,7 +26,7 @@ readonly class ScoreListResponse
     public static function fromArray(array $data): self
     {
         return new self(
-            data: array_map(fn (array $item): ScoreResponse => ScoreResponse::fromArray($item), $data['data']),
+            data: array_map(ScoreResponse::fromArray(...), $data['data']),
             meta: MetaData::fromArray($data['meta']),
         );
     }
