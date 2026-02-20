@@ -77,7 +77,7 @@ function getEventType(array $history, int $index = 0): string
 
 // ─── Trace ──────────────────────────────────────────────────────────────────
 
-it('creates a trace and posts to ingestion endpoint', function (): void {
+it('creates a trace with all parameters', function (): void {
     // Arrange
     $history = [];
     $ingestion = makeIngestion($history);
@@ -86,57 +86,40 @@ it('creates a trace and posts to ingestion endpoint', function (): void {
     $trace = $ingestion->trace(
         name: 'test-trace',
         traceId: 'my-trace-id',
+        sessionId: 'sess-456',
+        userId: 'user-123',
         input: 'hello',
-    );
-
-    // Assert
-    expect($trace)->toBeInstanceOf(Trace::class)
-        ->and($trace->id)->toBe('my-trace-id')
-        ->and($history)->toHaveCount(1);
-
-    /** @var RequestInterface $request */
-    $request = $history[0]['request'];
-    expect($request->getMethod())->toBe('POST')
-        ->and((string) $request->getUri())->toContain('/api/public/ingestion');
-
-    $body = getEventBody($history);
-    expect(getEventType($history))->toBe('trace-create')
-        ->and($body['id'])->toBe('my-trace-id')
-        ->and($body['name'])->toBe('test-trace')
-        ->and($body['input'])->toBe('hello')
-        ->and($body['environment'])->toBe('testing');
-});
-
-it('creates a trace with userId and sessionId', function (): void {
-    // Arrange
-    $history = [];
-    $ingestion = makeIngestion($history);
-
-    // Act
-    $ingestion->trace(name: 'test-trace', userId: 'user-123', sessionId: 'sess-456');
-
-    // Assert
-    $body = getEventBody($history);
-    expect($body['userId'])->toBe('user-123')
-        ->and($body['sessionId'])->toBe('sess-456');
-});
-
-it('creates a trace with metadata and tags', function (): void {
-    // Arrange
-    $history = [];
-    $ingestion = makeIngestion($history);
-
-    // Act
-    $ingestion->trace(
-        name: 'test-trace',
+        output: 'world',
         metadata: ['source' => 'test'],
         tags: ['tag1', 'tag2'],
+        release: '1.2.3',
+        version: '2.0.0',
+        public: true,
     );
 
     // Assert
+    /** @var RequestInterface $request */
+    $request = $history[0]['request'];
     $body = getEventBody($history);
-    expect($body['metadata'])->toBe(['source' => 'test'])
-        ->and($body['tags'])->toBe(['tag1', 'tag2']);
+
+    expect($trace)->toBeInstanceOf(Trace::class)
+        ->and($trace->id)->toBe('my-trace-id')
+        ->and($history)->toHaveCount(1)
+        ->and($request->getMethod())->toBe('POST')
+        ->and((string) $request->getUri())->toContain('/api/public/ingestion')
+        ->and(getEventType($history))->toBe('trace-create')
+        ->and($body['id'])->toBe('my-trace-id')
+        ->and($body['name'])->toBe('test-trace')
+        ->and($body['userId'])->toBe('user-123')
+        ->and($body['sessionId'])->toBe('sess-456')
+        ->and($body['input'])->toBe('hello')
+        ->and($body['output'])->toBe('world')
+        ->and($body['metadata'])->toBe(['source' => 'test'])
+        ->and($body['tags'])->toBe(['tag1', 'tag2'])
+        ->and($body['release'])->toBe('1.2.3')
+        ->and($body['version'])->toBe('2.0.0')
+        ->and($body['public'])->toBeTrue()
+        ->and($body['environment'])->toBe('testing');
 });
 
 it('omits null values from trace body', function (): void {
@@ -154,35 +137,43 @@ it('omits null values from trace body', function (): void {
         ->and($body)->not->toHaveKey('input')
         ->and($body)->not->toHaveKey('output')
         ->and($body)->not->toHaveKey('metadata')
-        ->and($body)->not->toHaveKey('tags');
+        ->and($body)->not->toHaveKey('tags')
+        ->and($body)->not->toHaveKey('release')
+        ->and($body)->not->toHaveKey('version')
+        ->and($body)->not->toHaveKey('public');
 });
 
-// ─── Trace update ───────────────────────────────────────────────────────────
-
-it('updates a trace with a second POST', function (): void {
+it('updates a trace with all parameters', function (): void {
     // Arrange
     $history = [];
     $ingestion = makeIngestion($history);
 
     // Act
-    $trace = $ingestion->trace(name: 'my-trace', input: 'start');
-    $result = $trace->update(output: 'final result', userId: 'user-456');
+    $trace = $ingestion->trace(name: 'my-trace');
+    $result = $trace->update(
+        output: 'final result',
+        userId: 'user-456',
+        release: '1.0.0',
+        version: '3.0.0',
+        public: false,
+    );
 
     // Assert
-    expect($result)->toBe($trace)
-        ->and($history)->toHaveCount(2);
-
-    expect(getEventType($history, index: 1))->toBe('trace-create');
-
     $body = getEventBody($history, index: 1);
-    expect($body['id'])->toBe($trace->id)
+    expect($result)->toBe($trace)
+        ->and($history)->toHaveCount(2)
+        ->and(getEventType($history, index: 1))->toBe('trace-create')
+        ->and($body['id'])->toBe($trace->id)
         ->and($body['output'])->toBe('final result')
-        ->and($body['userId'])->toBe('user-456');
+        ->and($body['userId'])->toBe('user-456')
+        ->and($body['release'])->toBe('1.0.0')
+        ->and($body['version'])->toBe('3.0.0')
+        ->and($body['public'])->toBeFalse();
 });
 
 // ─── Span ───────────────────────────────────────────────────────────────────
 
-it('creates a span and returns a Span', function (): void {
+it('creates a span with all parameters', function (): void {
     // Arrange
     $history = [];
     $ingestion = makeIngestion($history);
@@ -191,64 +182,69 @@ it('creates a span and returns a Span', function (): void {
     $span = $ingestion->span(
         traceId: 'my-trace-id',
         name: 'web-search-batch',
-        input: ['query' => 'test'],
-    );
-
-    // Assert
-    expect($span)->toBeInstanceOf(Span::class)
-        ->and($span->id)->toBeString()
-        ->and($history)->toHaveCount(1);
-
-    $body = getEventBody($history);
-    expect(getEventType($history))->toBe('span-create')
-        ->and($body['traceId'])->toBe('my-trace-id')
-        ->and($body['name'])->toBe('web-search-batch')
-        ->and($body['input'])->toBe(['query' => 'test']);
-});
-
-it('creates a span with a provided spanId', function (): void {
-    // Arrange
-    $history = [];
-    $ingestion = makeIngestion($history);
-
-    // Act
-    $span = $ingestion->span(
-        traceId: 'my-trace-id',
-        name: 'my-span',
         spanId: 'custom-span-id',
+        parentObservationId: 'parent-123',
+        input: ['query' => 'test'],
+        output: 'result',
+        startTime: '2025-01-01T00:00:00Z',
+        endTime: '2025-01-01T00:00:02Z',
+        metadata: ['source' => 'test'],
+        level: 'WARNING',
+        statusMessage: 'Something went wrong',
+        version: '1.0.0',
     );
 
     // Assert
-    expect($span->id)->toBe('custom-span-id');
-
     $body = getEventBody($history);
-    expect($body['id'])->toBe('custom-span-id');
+    expect($span)->toBeInstanceOf(Span::class)
+        ->and($span->id)->toBe('custom-span-id')
+        ->and($history)->toHaveCount(1)
+        ->and(getEventType($history))->toBe('span-create')
+        ->and($body['id'])->toBe('custom-span-id')
+        ->and($body['traceId'])->toBe('my-trace-id')
+        ->and($body['parentObservationId'])->toBe('parent-123')
+        ->and($body['name'])->toBe('web-search-batch')
+        ->and($body['input'])->toBe(['query' => 'test'])
+        ->and($body['output'])->toBe('result')
+        ->and($body['startTime'])->toBe('2025-01-01T00:00:00Z')
+        ->and($body['endTime'])->toBe('2025-01-01T00:00:02Z')
+        ->and($body['metadata'])->toBe(['source' => 'test'])
+        ->and($body['level'])->toBe('WARNING')
+        ->and($body['statusMessage'])->toBe('Something went wrong')
+        ->and($body['version'])->toBe('1.0.0');
 });
 
-it('updates a span with span-update type', function (): void {
+it('updates a span with all parameters', function (): void {
     // Arrange
     $history = [];
     $ingestion = makeIngestion($history);
 
     // Act
     $span = $ingestion->span(traceId: 'my-trace-id', name: 'search-span');
-    $result = $span->update(output: ['results' => 3], endTime: '2025-06-01T12:00:00+00:00');
+    $result = $span->update(
+        output: ['results' => 3],
+        endTime: '2025-06-01T12:00:00+00:00',
+        level: 'ERROR',
+        statusMessage: 'Failed',
+        version: '1.1.0',
+    );
 
     // Assert
-    expect($result)->toBe($span)
-        ->and($history)->toHaveCount(2);
-
-    expect(getEventType($history, index: 1))->toBe('span-update');
-
     $body = getEventBody($history, index: 1);
-    expect($body['id'])->toBe($span->id)
+    expect($result)->toBe($span)
+        ->and($history)->toHaveCount(2)
+        ->and(getEventType($history, index: 1))->toBe('span-update')
+        ->and($body['id'])->toBe($span->id)
         ->and($body['output'])->toBe(['results' => 3])
-        ->and($body['endTime'])->toBe('2025-06-01T12:00:00+00:00');
+        ->and($body['endTime'])->toBe('2025-06-01T12:00:00+00:00')
+        ->and($body['level'])->toBe('ERROR')
+        ->and($body['statusMessage'])->toBe('Failed')
+        ->and($body['version'])->toBe('1.1.0');
 });
 
 // ─── Generation ─────────────────────────────────────────────────────────────
 
-it('creates a generation with full payload', function (): void {
+it('creates a generation with all parameters', function (): void {
     // Arrange
     $history = [];
     $ingestion = makeIngestion($history);
@@ -259,50 +255,51 @@ it('creates a generation with full payload', function (): void {
         name: 'test-generation',
         input: ['messages' => [['role' => 'user', 'content' => 'Hi']]],
         output: 'Hello',
-        promptName: 'prompt-x',
-        promptVersion: 3,
+        generationId: 'custom-gen-id',
+        parentObservationId: 'span-abc',
         model: 'gpt-4o',
         modelParameters: ['temperature' => 0.2],
+        promptName: 'prompt-x',
+        promptVersion: 3,
         metadata: ['source' => 'test'],
+        startTime: '2025-01-01T00:00:00Z',
+        endTime: '2025-01-01T00:00:05Z',
+        completionStartTime: '2025-01-01T00:00:03Z',
+        usageDetails: ['input' => 10, 'output' => 20, 'total' => 30],
+        costDetails: ['input' => 0.001, 'output' => 0.002, 'total' => 0.003],
+        level: 'DEBUG',
+        statusMessage: 'All good',
+        version: '2.0.0',
     );
 
     // Assert
-    expect($gen)->toBeInstanceOf(Generation::class)
-        ->and($history)->toHaveCount(1);
-
     $body = getEventBody($history);
-    expect(getEventType($history))->toBe('generation-create')
+    expect($gen)->toBeInstanceOf(Generation::class)
+        ->and($gen->id)->toBe('custom-gen-id')
+        ->and($history)->toHaveCount(1)
+        ->and(getEventType($history))->toBe('generation-create')
+        ->and($body['id'])->toBe('custom-gen-id')
         ->and($body['traceId'])->toBe('my-trace-id')
+        ->and($body['parentObservationId'])->toBe('span-abc')
         ->and($body['name'])->toBe('test-generation')
         ->and($body['input'])->toBe(['messages' => [['role' => 'user', 'content' => 'Hi']]])
         ->and($body['output'])->toBe('Hello')
         ->and($body['model'])->toBe('gpt-4o')
+        ->and($body['modelParameters'])->toBe(['temperature' => 0.2])
         ->and($body['promptName'])->toBe('prompt-x')
         ->and($body['promptVersion'])->toBe(3)
-        ->and($body['modelParameters'])->toBe(['temperature' => 0.2])
-        ->and($body['metadata'])->toBe(['source' => 'test']);
+        ->and($body['metadata'])->toBe(['source' => 'test'])
+        ->and($body['startTime'])->toBe('2025-01-01T00:00:00Z')
+        ->and($body['endTime'])->toBe('2025-01-01T00:00:05Z')
+        ->and($body['completionStartTime'])->toBe('2025-01-01T00:00:03Z')
+        ->and($body['usageDetails'])->toBe(['input' => 10, 'output' => 20, 'total' => 30])
+        ->and($body['costDetails'])->toBe(['input' => 0.001, 'output' => 0.002, 'total' => 0.003])
+        ->and($body['level'])->toBe('DEBUG')
+        ->and($body['statusMessage'])->toBe('All good')
+        ->and($body['version'])->toBe('2.0.0');
 });
 
-it('creates a generation with parentObservationId', function (): void {
-    // Arrange
-    $history = [];
-    $ingestion = makeIngestion($history);
-
-    // Act
-    $ingestion->generation(
-        traceId: 'my-trace-id',
-        name: 'gen',
-        input: 'prompt',
-        output: 'response',
-        parentObservationId: 'span-abc',
-    );
-
-    // Assert
-    $body = getEventBody($history);
-    expect($body['parentObservationId'])->toBe('span-abc');
-});
-
-it('updates a generation with generation-update type', function (): void {
+it('updates a generation with all parameters', function (): void {
     // Arrange
     $history = [];
     $ingestion = makeIngestion($history);
@@ -314,17 +311,33 @@ it('updates a generation with generation-update type', function (): void {
         input: 'prompt',
         output: 'initial',
     );
-    $gen->update(output: 'updated response', model: 'gpt-4o');
+    $result = $gen->update(
+        output: 'final',
+        model: 'gpt-4o',
+        endTime: '2025-01-01T00:00:05Z',
+        completionStartTime: '2025-01-01T00:00:03Z',
+        usageDetails: ['input' => 15, 'output' => 25, 'total' => 40],
+        costDetails: ['total' => 0.004],
+        level: 'WARNING',
+        statusMessage: 'Slow response',
+        version: '1.1.0',
+    );
 
     // Assert
-    expect($history)->toHaveCount(2);
-
-    expect(getEventType($history, index: 1))->toBe('generation-update');
-
     $body = getEventBody($history, index: 1);
-    expect($body['id'])->toBe($gen->id)
-        ->and($body['output'])->toBe('updated response')
-        ->and($body['model'])->toBe('gpt-4o');
+    expect($result)->toBe($gen)
+        ->and($history)->toHaveCount(2)
+        ->and(getEventType($history, index: 1))->toBe('generation-update')
+        ->and($body['id'])->toBe($gen->id)
+        ->and($body['output'])->toBe('final')
+        ->and($body['model'])->toBe('gpt-4o')
+        ->and($body['endTime'])->toBe('2025-01-01T00:00:05Z')
+        ->and($body['completionStartTime'])->toBe('2025-01-01T00:00:03Z')
+        ->and($body['usageDetails'])->toBe(['input' => 15, 'output' => 25, 'total' => 40])
+        ->and($body['costDetails'])->toBe(['total' => 0.004])
+        ->and($body['level'])->toBe('WARNING')
+        ->and($body['statusMessage'])->toBe('Slow response')
+        ->and($body['version'])->toBe('1.1.0');
 });
 
 // ─── Trace child spawning ───────────────────────────────────────────────────
@@ -339,31 +352,38 @@ it('creates a span from a trace', function (): void {
     $span = $trace->span(name: 'child-span');
 
     // Assert
-    expect($span)->toBeInstanceOf(Span::class)
-        ->and($history)->toHaveCount(2);
-
     $body = getEventBody($history, index: 1);
-    expect($body['traceId'])->toBe($trace->id)
+    expect($span)->toBeInstanceOf(Span::class)
+        ->and($history)->toHaveCount(2)
+        ->and($body['traceId'])->toBe($trace->id)
         ->and($body['name'])->toBe('child-span');
 });
 
-it('creates a generation from a trace', function (): void {
+it('creates a generation from a trace with usageDetails and costDetails', function (): void {
     // Arrange
     $history = [];
     $ingestion = makeIngestion($history);
 
     // Act
     $trace = $ingestion->trace(name: 'my-trace');
-    $gen = $trace->generation(name: 'llm-call', input: 'prompt', output: 'response');
+    $gen = $trace->generation(
+        name: 'llm-call',
+        input: 'prompt',
+        output: 'response',
+        model: 'gpt-4o',
+        usageDetails: ['input' => 10, 'output' => 20],
+        costDetails: ['total' => 0.002],
+    );
 
     // Assert
-    expect($gen)->toBeInstanceOf(Generation::class)
-        ->and($history)->toHaveCount(2);
-
     $body = getEventBody($history, index: 1);
-    expect(getEventType($history, index: 1))->toBe('generation-create')
+    expect($gen)->toBeInstanceOf(Generation::class)
+        ->and($history)->toHaveCount(2)
+        ->and(getEventType($history, index: 1))->toBe('generation-create')
         ->and($body['traceId'])->toBe($trace->id)
-        ->and($body['name'])->toBe('llm-call');
+        ->and($body['name'])->toBe('llm-call')
+        ->and($body['usageDetails'])->toBe(['input' => 10, 'output' => 20])
+        ->and($body['costDetails'])->toBe(['total' => 0.002]);
 });
 
 // ─── Span child spawning ───────────────────────────────────────────────────
@@ -379,15 +399,14 @@ it('creates a child span from a span with parentObservationId', function (): voi
     $child = $parent->span(name: 'child-span');
 
     // Assert
-    expect($history)->toHaveCount(3);
-
     $body = getEventBody($history, index: 2);
-    expect($body['traceId'])->toBe($trace->id)
+    expect($history)->toHaveCount(3)
+        ->and($body['traceId'])->toBe($trace->id)
         ->and($body['parentObservationId'])->toBe($parent->id)
         ->and($body['name'])->toBe('child-span');
 });
 
-it('creates a generation from a span with parentObservationId', function (): void {
+it('creates a generation from a span with usageDetails and costDetails', function (): void {
     // Arrange
     $history = [];
     $ingestion = makeIngestion($history);
@@ -395,15 +414,22 @@ it('creates a generation from a span with parentObservationId', function (): voi
     // Act
     $trace = $ingestion->trace(name: 'my-trace');
     $span = $trace->span(name: 'my-span');
-    $gen = $span->generation(name: 'llm-call', input: 'prompt', output: 'response');
+    $gen = $span->generation(
+        name: 'llm-call',
+        input: 'prompt',
+        output: 'response',
+        usageDetails: ['input' => 5, 'output' => 10],
+        costDetails: ['total' => 0.001],
+    );
 
     // Assert
-    expect($history)->toHaveCount(3);
-
     $body = getEventBody($history, index: 2);
-    expect(getEventType($history, index: 2))->toBe('generation-create')
+    expect($history)->toHaveCount(3)
+        ->and(getEventType($history, index: 2))->toBe('generation-create')
         ->and($body['traceId'])->toBe($trace->id)
-        ->and($body['parentObservationId'])->toBe($span->id);
+        ->and($body['parentObservationId'])->toBe($span->id)
+        ->and($body['usageDetails'])->toBe(['input' => 5, 'output' => 10])
+        ->and($body['costDetails'])->toBe(['total' => 0.001]);
 });
 
 // ─── Payload structure ─────────────────────────────────────────────────────
@@ -419,12 +445,11 @@ it('sends correct v2 ingestion batch structure', function (): void {
     // Assert
     $payload = getPayload($history);
 
-    expect($payload)->toHaveKey('batch')
-        ->and($payload['batch'])->toHaveCount(1);
-
     /** @var array{batch: list<array{id: string, timestamp: string, type: string, body: array<string, mixed>}>} $payload */
     $event = $payload['batch'][0];
-    expect($event)->toHaveKey('id')
+    expect($payload)->toHaveKey('batch')
+        ->and($payload['batch'])->toHaveCount(1)
+        ->and($event)->toHaveKey('id')
         ->and($event)->toHaveKey('timestamp')
         ->and($event)->toHaveKey('type')
         ->and($event)->toHaveKey('body')
@@ -432,11 +457,8 @@ it('sends correct v2 ingestion batch structure', function (): void {
 });
 
 it('generates valid uuid v4 format', function (): void {
-    // Act
-    $uuid = Ingestion::uuid();
-
-    // Assert
-    expect($uuid)->toMatch('/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/');
+    expect(Ingestion::uuid())
+        ->toMatch('/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/');
 });
 
 // ─── Error handling ─────────────────────────────────────────────────────────
@@ -473,9 +495,8 @@ it('handles a full trace with spans and generations', function (): void {
     $trace->update(output: 'It is 22 degrees and sunny.');
 
     // Assert: 7 HTTP calls (trace, span, child-span, child-update, generation, span-update, trace-update)
-    expect($history)->toHaveCount(7);
-
-    expect(getEventType($history, index: 0))->toBe('trace-create')
+    expect($history)->toHaveCount(7)
+        ->and(getEventType($history, index: 0))->toBe('trace-create')
         ->and(getEventType($history, index: 1))->toBe('span-create')
         ->and(getEventType($history, index: 2))->toBe('span-create')
         ->and(getEventType($history, index: 3))->toBe('span-update')

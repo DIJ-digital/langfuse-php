@@ -21,7 +21,8 @@ class Prompt
     public function __construct(
         private readonly TransporterInterface $transporter,
         private readonly string $defaultLabel,
-    ) {}
+    ) {
+    }
 
     /**
      * Retrieve a text prompt by name. Uses default label if no version or label provided.
@@ -49,7 +50,7 @@ class Prompt
     /**
      * Retrieve a chat prompt by name. Uses default label if no version or label provided.
      *
-     * @param  array<int, array{role: string, content: string}>|null  $fallback
+     * @param array<int, array{role: string, content: string}>|null $fallback
      *
      * @throws InvalidPromptTypeException
      */
@@ -96,10 +97,10 @@ class Prompt
     /**
      * Create a new prompt.
      *
-     * @param  ($type is PromptType::TEXT ? string : array<int, array{role: string, content: string}>)  $prompt
-     * @param  array<int, string>|null  $labels
-     * @param  array<string, mixed>|null  $config
-     * @param  array<int, string>|null  $tags
+     * @param ($type is PromptType::TEXT ? string : array<int, array{role: string, content: string}>) $prompt
+     * @param array<int, string>|null $labels
+     * @param array<string, mixed>|null $config
+     * @param array<int, string>|null $tags
      * @return ($type is PromptType::TEXT ? TextPromptResponse : ChatPromptResponse)
      *
      * @throws JsonException
@@ -164,7 +165,7 @@ class Prompt
     /**
      * Update labels for a specific prompt version.
      *
-     * @param  array<int, string>  $labels
+     * @param array<int, string> $labels
      *
      * @throws JsonException
      */

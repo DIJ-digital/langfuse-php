@@ -1,5 +1,7 @@
 ## Langfuse PHP - A PHP Client for Langfuse API
 
+> **For detailed documentation, examples, and parameter references, see the [Wiki](../../wiki).**
+
 This package provides a wrapper around the [Langfuse](https://langfuse.com) API, allowing you to easily integrate Langfuse into your PHP applications. It uses as few dependencies as possible.
 
 ### This package supports the following features:
@@ -134,6 +136,11 @@ $gen = $trace->generation(
     modelParameters: ['temperature' => 0.7],
     promptName: 'my-prompt',
     promptVersion: 1,
+    startTime: '2025-01-01T00:00:00Z',
+    endTime: '2025-01-01T00:00:05Z',
+    completionStartTime: '2025-01-01T00:00:03Z',
+    usageDetails: ['input' => 10, 'output' => 20, 'total' => 30],
+    costDetails: ['input' => 0.001, 'output' => 0.002, 'total' => 0.003],
 );
 
 // Generation nested under a span
@@ -147,7 +154,9 @@ $gen = $span->generation(
 // Update a generation after the LLM responds
 $gen->update(
     output: 'updated response',
-    metadata: ['tokens' => 150],
+    endTime: date('c'),
+    usageDetails: ['input' => 15, 'output' => 25, 'total' => 40],
+    costDetails: ['total' => 0.004],
 );
 ```
 
