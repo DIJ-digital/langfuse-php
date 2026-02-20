@@ -34,6 +34,9 @@ class Trace
         array|string|null $output = null,
         ?array $metadata = null,
         ?array $tags = null,
+        ?string $release = null,
+        ?string $version = null,
+        ?bool $public = null,
     ): self {
         $body = array_filter([
             'id' => $this->traceId,
@@ -44,6 +47,9 @@ class Trace
             'output' => $output,
             'metadata' => $metadata,
             'tags' => $tags,
+            'release' => $release,
+            'version' => $version,
+            'public' => $public,
         ], static fn (mixed $v): bool => $v !== null);
 
         $this->ingestion->send('trace-create', $body);
@@ -66,6 +72,9 @@ class Trace
         ?string $startTime = null,
         ?string $endTime = null,
         ?array $metadata = null,
+        ?string $level = null,
+        ?string $statusMessage = null,
+        ?string $version = null,
     ): Span {
         return $this->ingestion->span(
             traceId: $this->traceId,
@@ -76,6 +85,9 @@ class Trace
             startTime: $startTime,
             endTime: $endTime,
             metadata: $metadata,
+            level: $level,
+            statusMessage: $statusMessage,
+            version: $version,
         );
     }
 
@@ -86,6 +98,8 @@ class Trace
      * @param array<string, mixed>|string $output
      * @param array<string, mixed>|null $modelParameters
      * @param array<string, mixed>|null $metadata
+     * @param array<string, int>|null $usageDetails
+     * @param array<string, float>|null $costDetails
      */
     public function generation(
         string $name,
@@ -99,6 +113,12 @@ class Trace
         ?array $metadata = null,
         ?string $startTime = null,
         ?string $endTime = null,
+        ?string $completionStartTime = null,
+        ?array $usageDetails = null,
+        ?array $costDetails = null,
+        ?string $level = null,
+        ?string $statusMessage = null,
+        ?string $version = null,
     ): Generation {
         return $this->ingestion->generation(
             traceId: $this->traceId,
@@ -113,6 +133,12 @@ class Trace
             metadata: $metadata,
             startTime: $startTime,
             endTime: $endTime,
+            completionStartTime: $completionStartTime,
+            usageDetails: $usageDetails,
+            costDetails: $costDetails,
+            level: $level,
+            statusMessage: $statusMessage,
+            version: $version,
         );
     }
 }

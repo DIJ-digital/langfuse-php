@@ -50,6 +50,9 @@ class Ingestion
         array|string|null $output = null,
         ?array $metadata = null,
         ?array $tags = null,
+        ?string $release = null,
+        ?string $version = null,
+        ?bool $public = null,
     ): Trace {
         $traceId ??= self::uuid();
 
@@ -63,6 +66,9 @@ class Ingestion
             'output' => $output,
             'metadata' => $metadata,
             'tags' => $tags,
+            'release' => $release,
+            'version' => $version,
+            'public' => $public,
             'environment' => $this->environment,
         ], static fn (mixed $v): bool => $v !== null);
 
@@ -91,6 +97,9 @@ class Ingestion
         ?string $startTime = null,
         ?string $endTime = null,
         ?array $metadata = null,
+        ?string $level = null,
+        ?string $statusMessage = null,
+        ?string $version = null,
     ): Span {
         $spanId ??= self::uuid();
 
@@ -104,6 +113,9 @@ class Ingestion
             'input' => $input,
             'output' => $output,
             'metadata' => $metadata,
+            'level' => $level,
+            'statusMessage' => $statusMessage,
+            'version' => $version,
             'environment' => $this->environment,
         ], static fn (mixed $v): bool => $v !== null);
 
@@ -123,6 +135,8 @@ class Ingestion
      * @param array<string, mixed>|string $output
      * @param array<string, mixed>|null $modelParameters
      * @param array<string, mixed>|null $metadata
+     * @param array<string, int>|null $usageDetails
+     * @param array<string, float>|null $costDetails
      */
     public function generation(
         string $traceId,
@@ -138,6 +152,12 @@ class Ingestion
         ?array $metadata = null,
         ?string $startTime = null,
         ?string $endTime = null,
+        ?string $completionStartTime = null,
+        ?array $usageDetails = null,
+        ?array $costDetails = null,
+        ?string $level = null,
+        ?string $statusMessage = null,
+        ?string $version = null,
     ): Generation {
         $generationId ??= self::uuid();
 
@@ -148,6 +168,7 @@ class Ingestion
             'name' => $name,
             'startTime' => $startTime ?? self::now(),
             'endTime' => $endTime,
+            'completionStartTime' => $completionStartTime,
             'input' => $input,
             'output' => $output,
             'model' => $model,
@@ -155,6 +176,11 @@ class Ingestion
             'promptName' => $promptName,
             'promptVersion' => $promptVersion,
             'metadata' => $metadata,
+            'usageDetails' => $usageDetails,
+            'costDetails' => $costDetails,
+            'level' => $level,
+            'statusMessage' => $statusMessage,
+            'version' => $version,
             'environment' => $this->environment,
         ], static fn (mixed $v): bool => $v !== null);
 

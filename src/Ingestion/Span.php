@@ -32,6 +32,9 @@ class Span
         array|string|null $output = null,
         ?string $endTime = null,
         ?array $metadata = null,
+        ?string $level = null,
+        ?string $statusMessage = null,
+        ?string $version = null,
     ): self {
         $body = array_filter([
             'id' => $this->spanId,
@@ -41,6 +44,9 @@ class Span
             'output' => $output,
             'endTime' => $endTime,
             'metadata' => $metadata,
+            'level' => $level,
+            'statusMessage' => $statusMessage,
+            'version' => $version,
         ], static fn (mixed $v): bool => $v !== null);
 
         $this->ingestion->send('span-update', $body);
@@ -63,6 +69,9 @@ class Span
         ?string $startTime = null,
         ?string $endTime = null,
         ?array $metadata = null,
+        ?string $level = null,
+        ?string $statusMessage = null,
+        ?string $version = null,
     ): self {
         return $this->ingestion->span(
             traceId: $this->traceId,
@@ -74,6 +83,9 @@ class Span
             startTime: $startTime,
             endTime: $endTime,
             metadata: $metadata,
+            level: $level,
+            statusMessage: $statusMessage,
+            version: $version,
         );
     }
 
@@ -84,6 +96,8 @@ class Span
      * @param array<string, mixed>|string $output
      * @param array<string, mixed>|null $modelParameters
      * @param array<string, mixed>|null $metadata
+     * @param array<string, int>|null $usageDetails
+     * @param array<string, float>|null $costDetails
      */
     public function generation(
         string $name,
@@ -97,6 +111,12 @@ class Span
         ?array $metadata = null,
         ?string $startTime = null,
         ?string $endTime = null,
+        ?string $completionStartTime = null,
+        ?array $usageDetails = null,
+        ?array $costDetails = null,
+        ?string $level = null,
+        ?string $statusMessage = null,
+        ?string $version = null,
     ): Generation {
         return $this->ingestion->generation(
             traceId: $this->traceId,
@@ -112,6 +132,12 @@ class Span
             metadata: $metadata,
             startTime: $startTime,
             endTime: $endTime,
+            completionStartTime: $completionStartTime,
+            usageDetails: $usageDetails,
+            costDetails: $costDetails,
+            level: $level,
+            statusMessage: $statusMessage,
+            version: $version,
         );
     }
 }

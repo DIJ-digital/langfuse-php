@@ -26,6 +26,8 @@ class Generation
      * @param array<string, mixed>|string|null $output
      * @param array<string, mixed>|null $modelParameters
      * @param array<string, mixed>|null $metadata
+     * @param array<string, int>|null $usageDetails
+     * @param array<string, float>|null $costDetails
      */
     public function update(
         array|string|null $input = null,
@@ -34,6 +36,12 @@ class Generation
         ?array $modelParameters = null,
         ?array $metadata = null,
         ?string $endTime = null,
+        ?string $completionStartTime = null,
+        ?array $usageDetails = null,
+        ?array $costDetails = null,
+        ?string $level = null,
+        ?string $statusMessage = null,
+        ?string $version = null,
     ): self {
         $body = array_filter([
             'id' => $this->generationId,
@@ -44,6 +52,12 @@ class Generation
             'modelParameters' => $modelParameters,
             'metadata' => $metadata,
             'endTime' => $endTime,
+            'completionStartTime' => $completionStartTime,
+            'usageDetails' => $usageDetails,
+            'costDetails' => $costDetails,
+            'level' => $level,
+            'statusMessage' => $statusMessage,
+            'version' => $version,
         ], static fn (mixed $v): bool => $v !== null);
 
         $this->ingestion->send('generation-update', $body);
