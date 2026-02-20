@@ -29,9 +29,9 @@ it('can create a numeric score', function (): void {
     $score = (new Langfuse(new HttpTransporter($client)))
         ->score()
         ->create(
-            traceId: 'trace-456',
             name: 'accuracy',
             value: 0.95,
+            traceId: 'trace-456',
             dataType: ScoreDataType::NUMERIC,
         );
 
@@ -59,9 +59,9 @@ it('can create a categorical score', function (): void {
     $score = (new Langfuse(new HttpTransporter($client)))
         ->score()
         ->create(
-            traceId: 'trace-456',
             name: 'helpfulness',
             value: 'helpful',
+            traceId: 'trace-456',
             dataType: ScoreDataType::CATEGORICAL,
         );
 
@@ -86,9 +86,9 @@ it('can create a boolean score', function (): void {
     $score = (new Langfuse(new HttpTransporter($client)))
         ->score()
         ->create(
-            traceId: 'trace-456',
             name: 'is_correct',
             value: 1,
+            traceId: 'trace-456',
             dataType: ScoreDataType::BOOLEAN,
         );
 
@@ -154,8 +154,8 @@ it('can list scores with filters', function (): void {
             page: 1,
             limit: 10,
             name: 'accuracy',
-            dataType: ScoreDataType::NUMERIC,
             traceId: 'trace-123',
+            dataType: ScoreDataType::NUMERIC,
         );
 
     expect($history)->toHaveCount(1);
@@ -217,9 +217,9 @@ it('sends correct payload when creating a score', function (): void {
     (new Langfuse(new HttpTransporter($client)))
         ->score()
         ->create(
-            traceId: 'trace-456',
             name: 'accuracy',
             value: 0.95,
+            traceId: 'trace-456',
             dataType: ScoreDataType::NUMERIC,
             id: 'custom-score-id',
             observationId: 'obs-789',

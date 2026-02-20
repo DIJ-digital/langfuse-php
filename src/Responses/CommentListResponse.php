@@ -9,12 +9,13 @@ use DIJ\Langfuse\PHP\ValueObjects\MetaData;
 readonly class CommentListResponse
 {
     /**
-     * @param  array<int, CommentResponse>  $data
+     * @param array<int, CommentResponse> $data
      */
     public function __construct(
         public array $data,
         public MetaData $meta,
-    ) {}
+    ) {
+    }
 
     /**
      * @param array{
@@ -35,7 +36,7 @@ readonly class CommentListResponse
     {
         return new self(
             data: array_map(
-                fn (array $item): CommentResponse => CommentResponse::fromArray($item),
+                CommentResponse::fromArray(...),
                 $data['data']
             ),
             meta: MetaData::fromArray($data['meta']),

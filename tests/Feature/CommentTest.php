@@ -16,7 +16,7 @@ use GuzzleHttp\HandlerStack;
 
 it('can get a comment by id', function (): void {
     $mock = new MockHandler([
-        new GetCommentResponse,
+        new GetCommentResponse(),
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -37,7 +37,7 @@ it('can get a comment by id', function (): void {
 
 it('can list comments', function (): void {
     $mock = new MockHandler([
-        new GetCommentListResponse,
+        new GetCommentListResponse(),
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -62,7 +62,7 @@ it('can list comments', function (): void {
 
 it('can create a comment', function (): void {
     $mock = new MockHandler([
-        new PostCommentResponse,
+        new PostCommentResponse(),
     ]);
 
     $handlerStack = HandlerStack::create($mock);
@@ -85,7 +85,7 @@ it('can create a comment', function (): void {
 
 it('can list comments with filters', function (): void {
     $mock = new MockHandler([
-        new GetCommentListResponse,
+        new GetCommentListResponse(),
     ]);
 
     $handlerStack = HandlerStack::create($mock);

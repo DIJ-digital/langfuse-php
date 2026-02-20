@@ -11,7 +11,9 @@ use JsonException;
 
 class Comment
 {
-    public function __construct(private readonly TransporterInterface $transporter) {}
+    public function __construct(private readonly TransporterInterface $transporter)
+    {
+    }
 
     /**
      * @throws JsonException

@@ -16,7 +16,8 @@ class Ingestion
     public function __construct(
         private readonly TransporterInterface $transporter,
         private readonly string $environment = 'default',
-    ) {}
+    ) {
+    }
 
     public static function uuid(): string
     {
@@ -29,16 +30,16 @@ class Ingestion
 
     public static function now(): string
     {
-        return gmdate('Y-m-d\TH:i:s.').sprintf('%03d', (int) (microtime(true) * 1000) % 1000).'Z';
+        return gmdate('Y-m-d\TH:i:s.') . sprintf('%03d', (int) (microtime(true) * 1000) % 1000) . 'Z';
     }
 
     /**
      * Create a trace.
      *
-     * @param  array<string, mixed>|string|null  $input
-     * @param  array<string, mixed>|string|null  $output
-     * @param  array<string, mixed>|null  $metadata
-     * @param  list<string>|null  $tags
+     * @param array<string, mixed>|string|null $input
+     * @param array<string, mixed>|string|null $output
+     * @param array<string, mixed>|null $metadata
+     * @param list<string>|null $tags
      */
     public function trace(
         string $name,
@@ -76,9 +77,9 @@ class Ingestion
     /**
      * Create a span.
      *
-     * @param  array<string, mixed>|string|null  $input
-     * @param  array<string, mixed>|string|null  $output
-     * @param  array<string, mixed>|null  $metadata
+     * @param array<string, mixed>|string|null $input
+     * @param array<string, mixed>|string|null $output
+     * @param array<string, mixed>|null $metadata
      */
     public function span(
         string $traceId,
@@ -118,10 +119,10 @@ class Ingestion
     /**
      * Create a generation.
      *
-     * @param  array<string, mixed>|string  $input
-     * @param  array<string, mixed>|string  $output
-     * @param  array<string, mixed>|null  $modelParameters
-     * @param  array<string, mixed>|null  $metadata
+     * @param array<string, mixed>|string $input
+     * @param array<string, mixed>|string $output
+     * @param array<string, mixed>|null $modelParameters
+     * @param array<string, mixed>|null $metadata
      */
     public function generation(
         string $traceId,
@@ -169,7 +170,7 @@ class Ingestion
     /**
      * Send a single ingestion event to the Langfuse API.
      *
-     * @param  array<string, mixed>  $body
+     * @param array<string, mixed> $body
      */
     public function send(string $type, array $body): void
     {

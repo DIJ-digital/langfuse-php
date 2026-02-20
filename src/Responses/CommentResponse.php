@@ -15,7 +15,8 @@ readonly class CommentResponse
         public string $createdAt,
         public string $updatedAt,
         public string $projectId,
-    ) {}
+    ) {
+    }
 
     /**
      * @param array{

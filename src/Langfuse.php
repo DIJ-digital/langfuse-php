@@ -12,7 +12,8 @@ class Langfuse
         private readonly TransporterInterface $transporter,
         private readonly string $environment = 'default',
         private readonly string $label = 'latest',
-    ) {}
+    ) {
+    }
 
     public function prompt(): Prompt
     {

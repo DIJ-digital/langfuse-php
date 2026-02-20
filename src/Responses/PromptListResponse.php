@@ -11,13 +11,14 @@ use DIJ\Langfuse\PHP\ValueObjects\PromptListItem;
 readonly class PromptListResponse
 {
     /**
-     * @param  array<int, PromptListItem>  $data
+     * @param array<int, PromptListItem> $data
      */
     public function __construct(
         public array $data,
         public MetaData $meta,
         public PaginationData $pagination,
-    ) {}
+    ) {
+    }
 
     /**
      * @param array{
@@ -29,7 +30,7 @@ readonly class PromptListResponse
     public static function fromArray(array $data): self
     {
         return new self(
-            data: array_map(fn (array $data): PromptListItem => PromptListItem::fromArray($data), $data['data']),
+            data: array_map(PromptListItem::fromArray(...), $data['data']),
             meta: MetaData::fromArray($data['meta']),
             pagination: PaginationData::fromArray($data['pagination']),
         );

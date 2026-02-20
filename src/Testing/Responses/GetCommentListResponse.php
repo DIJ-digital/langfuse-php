@@ -9,7 +9,7 @@ use GuzzleHttp\Psr7\Response;
 class GetCommentListResponse extends Response
 {
     /**
-     * @param  array<array<string>|string>  $headers
+     * @param array<array<string>|string> $headers
      */
     public function __construct(int $status = 200, array $headers = [], string $version = '1.1', ?string $reason = null)
     {
