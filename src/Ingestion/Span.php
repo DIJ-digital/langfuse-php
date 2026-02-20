@@ -8,23 +8,22 @@ use DIJ\Langfuse\PHP\Ingestion;
 
 class Span
 {
-    public string $id {
-        get => $this->spanId;
-    }
+    public readonly string $id;
 
     public function __construct(
         public readonly string $spanId,
         public readonly string $traceId,
         private readonly Ingestion $ingestion,
     ) {
+        $this->id = $this->spanId;
     }
 
     /**
      * Update this span.
      *
-     * @param array<string, mixed>|string|null $input
-     * @param array<string, mixed>|string|null $output
-     * @param array<string, mixed>|null $metadata
+     * @param  array<string, mixed>|string|null  $input
+     * @param  array<string, mixed>|string|null  $output
+     * @param  array<string, mixed>|null  $metadata
      */
     public function update(
         ?string $name = null,
@@ -51,9 +50,9 @@ class Span
     /**
      * Create a child span nested under this span.
      *
-     * @param array<string, mixed>|string|null $input
-     * @param array<string, mixed>|string|null $output
-     * @param array<string, mixed>|null $metadata
+     * @param  array<string, mixed>|string|null  $input
+     * @param  array<string, mixed>|string|null  $output
+     * @param  array<string, mixed>|null  $metadata
      */
     public function span(
         string $name,
@@ -80,10 +79,10 @@ class Span
     /**
      * Create a child generation nested under this span.
      *
-     * @param array<string, mixed>|string $input
-     * @param array<string, mixed>|string $output
-     * @param array<string, mixed>|null $modelParameters
-     * @param array<string, mixed>|null $metadata
+     * @param  array<string, mixed>|string  $input
+     * @param  array<string, mixed>|string  $output
+     * @param  array<string, mixed>|null  $modelParameters
+     * @param  array<string, mixed>|null  $metadata
      */
     public function generation(
         string $name,

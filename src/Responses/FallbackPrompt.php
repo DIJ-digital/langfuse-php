@@ -12,19 +12,6 @@ readonly class FallbackPrompt extends BasePromptResponse
     use IsCompilable;
 
     /**
-     * @param ($type is "text" ? string : array<int, array{role: string, content: string}>) $prompt
-     */
-    public function __construct(
-        string|array $prompt,
-        string $type,
-    ) {
-        parent::__construct(
-            prompt: $prompt,
-            type: $type,
-        );
-    }
-
-    /**
      * Create a text fallback prompt
      */
     public static function text(
