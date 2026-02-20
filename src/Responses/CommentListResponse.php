@@ -6,10 +6,10 @@ namespace DIJ\Langfuse\PHP\Responses;
 
 use DIJ\Langfuse\PHP\ValueObjects\MetaData;
 
-readonly class ScoreListResponse
+readonly class CommentListResponse
 {
     /**
-     * @param array<int, ScoreResponse> $data
+     * @param array<int, CommentResponse> $data
      */
     public function __construct(
         public array $data,
@@ -19,14 +19,26 @@ readonly class ScoreListResponse
 
     /**
      * @param array{
-     *     data: array<int, array{id: string, traceId: string|null, name: string, value: float|string, dataType: string, source: string, observationId: string|null, comment: string|null, configId: string|null, queueId: string|null, stringValue: string|null, createdAt: string|null, updatedAt: string|null, authorUserId: string|null}>,
+     *     data: array<int, array{
+     *         id: string,
+     *         content: string,
+     *         objectType: string,
+     *         objectId: string,
+     *         authorUserId: string|null,
+     *         createdAt: string,
+     *         updatedAt: string,
+     *         projectId: string
+     *     }>,
      *     meta: array{page: int, limit: int, totalPages: int, totalItems: int}
      * } $data
      */
     public static function fromArray(array $data): self
     {
         return new self(
-            data: array_map(ScoreResponse::fromArray(...), $data['data']),
+            data: array_map(
+                CommentResponse::fromArray(...),
+                $data['data']
+            ),
             meta: MetaData::fromArray($data['meta']),
         );
     }

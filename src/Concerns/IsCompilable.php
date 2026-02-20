@@ -38,7 +38,7 @@ trait IsCompilable
         $values = array_values($data);
 
         return str_replace(
-            array_map(fn ($i): string => '{{' . $i . '}}', array_keys($data)),
+            array_map(fn (string $i): string => '{{' . $i . '}}', array_keys($data)),
             $values,
             $prompt
         );

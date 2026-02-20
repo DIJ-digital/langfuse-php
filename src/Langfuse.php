@@ -37,4 +37,11 @@ class Langfuse
             transporter: $this->transporter,
         );
     }
+
+    public function comment(): Comment
+    {
+        return new Comment(
+            transporter: $this->transporter,
+        );
+    }
 }
