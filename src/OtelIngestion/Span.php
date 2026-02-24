@@ -8,16 +8,16 @@ use DIJ\Langfuse\PHP\OtelIngestion;
 
 class Span
 {
-    public string $id {
-        get => $this->spanId;
-    }
+    public readonly string $id;
 
     public function __construct(
         public readonly string $spanId,
         public readonly string $traceId,
         public readonly string $parentSpanId,
         private readonly OtelIngestion $ingestion,
-    ) {}
+    ) {
+        $this->id = $this->spanId;
+    }
 
     /**
      * Update this span by sending a new span event with the same spanId.

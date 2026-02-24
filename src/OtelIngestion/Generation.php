@@ -8,16 +8,16 @@ use DIJ\Langfuse\PHP\OtelIngestion;
 
 class Generation
 {
-    public string $id {
-        get => $this->generationId;
-    }
+    public readonly string $id;
 
     public function __construct(
         public readonly string $generationId,
         public readonly string $traceId,
         public readonly string $parentSpanId,
         private readonly OtelIngestion $ingestion,
-    ) {}
+    ) {
+        $this->id = $this->generationId;
+    }
 
     /**
      * Update this generation by sending a new span event with updated attributes.

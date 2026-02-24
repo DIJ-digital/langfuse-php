@@ -8,15 +8,15 @@ use DIJ\Langfuse\PHP\OtelIngestion;
 
 class Trace
 {
-    public string $id {
-        get => $this->traceId;
-    }
+    public readonly string $id;
 
     public function __construct(
         public readonly string $traceId,
         public readonly string $rootSpanId,
         private readonly OtelIngestion $ingestion,
-    ) {}
+    ) {
+        $this->id = $this->traceId;
+    }
 
     /**
      * Update this trace by sending an additional root span with updated attributes.
