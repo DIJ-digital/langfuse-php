@@ -21,7 +21,8 @@ class Prompt
     public function __construct(
         private readonly TransporterInterface $transporter,
         private readonly string $defaultLabel,
-    ) {}
+    ) {
+    }
 
     /**
      * Retrieve a text prompt by name. Uses default label if no version or label provided.
@@ -31,7 +32,7 @@ class Prompt
     public function text(string $promptName, ?int $version = null, ?string $label = null, ?string $fallback = null): null|TextPromptResponse|FallbackPrompt
     {
         try {
-            $prompt = $this->getPrompt($promptName, PromptType::TEXT, $version, $label ?? $this->defaultLabel);
+            $prompt = $this->getPrompt($promptName, PromptType::TEXT, $version, $this->resolveLabel($version, $label));
         } catch (InvalidPromptTypeException $e) {
             throw $e;
         } catch (Throwable) {
@@ -49,14 +50,14 @@ class Prompt
     /**
      * Retrieve a chat prompt by name. Uses default label if no version or label provided.
      *
-     * @param  array<int, array{role: string, content: string}>|null  $fallback
+     * @param array<int, array{role: string, content: string}>|null $fallback
      *
      * @throws InvalidPromptTypeException
      */
     public function chat(string $promptName, ?int $version = null, ?string $label = null, ?array $fallback = null): null|ChatPromptResponse|FallbackPrompt
     {
         try {
-            $prompt = $this->getPrompt($promptName, PromptType::CHAT, $version, $label ?? $this->defaultLabel);
+            $prompt = $this->getPrompt($promptName, PromptType::CHAT, $version, $this->resolveLabel($version, $label));
         } catch (InvalidPromptTypeException $e) {
             throw $e;
         } catch (Throwable) {
@@ -96,10 +97,10 @@ class Prompt
     /**
      * Create a new prompt.
      *
-     * @param  ($type is PromptType::TEXT ? string : array<int, array{role: string, content: string}>)  $prompt
-     * @param  array<int, string>|null  $labels
-     * @param  array<string, mixed>|null  $config
-     * @param  array<int, string>|null  $tags
+     * @param ($type is PromptType::TEXT ? string : array<int, array{role: string, content: string}>) $prompt
+     * @param array<int, string>|null $labels
+     * @param array<string, mixed>|null $config
+     * @param array<int, string>|null $tags
      * @return ($type is PromptType::TEXT ? TextPromptResponse : ChatPromptResponse)
      *
      * @throws JsonException
@@ -164,7 +165,7 @@ class Prompt
     /**
      * Update labels for a specific prompt version.
      *
-     * @param  array<int, string>  $labels
+     * @param array<int, string> $labels
      *
      * @throws JsonException
      */
@@ -248,6 +249,32 @@ class Prompt
         $data = json_decode($response->getBody()->getContents(), true, flags: JSON_THROW_ON_ERROR);
 
         return PromptListResponse::fromArray($data);
+    }
+
+    /**
+     * Decide which label, if any, accompanies a prompt request.
+     *
+     * A label and a version are two ways of selecting the SAME thing — a prompt
+     * revision — so the API refuses to receive both:
+     *
+     *     GET /api/public/v2/prompts/{name}?version=7&label=production
+     *     -> 400 {"message":"Cannot specify both version and label",
+     *             "error":"InvalidRequestError"}
+     *
+     * Applying the default label to a request that already names a version
+     * therefore makes that request fail, which is what this method prevents.
+     *
+     * An explicitly passed $label is returned untouched: a caller who deliberately
+     * sends both still gets that 400 back. This only stops the DEFAULT label from
+     * being added behind their back.
+     */
+    private function resolveLabel(?int $version, ?string $label): ?string
+    {
+        if ($label !== null) {
+            return $label;
+        }
+
+        return $version === null ? $this->defaultLabel : null;
     }
 
     /**

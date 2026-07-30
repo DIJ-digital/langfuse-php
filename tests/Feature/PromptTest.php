@@ -22,6 +22,8 @@ use DIJ\Langfuse\PHP\ValueObjects\PromptListItem;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Middleware;
+use Psr\Http\Message\RequestInterface;
 
 it('can get a text prompt', function (): void {
     $mock = new MockHandler([
@@ -397,4 +399,89 @@ it('can update prompt labels on a chat prompt', function (): void {
 
     expect($prompt)->toBeInstanceOf(ChatPromptResponse::class)
         ->and($prompt->labels)->toBe(['production']);
+});
+
+/**
+ * Records the query string of the single outgoing request, typed so the
+ * assertions below never touch `mixed`.
+ */
+function captureSentQuery(HandlerStack $handlerStack, ?string &$sentQuery): void
+{
+    $handlerStack->push(Middleware::tap(function (RequestInterface $request) use (&$sentQuery): void {
+        $sentQuery = $request->getUri()->getQuery();
+    }));
+}
+
+it('sends only the version when a version is given', function (): void {
+    $handlerStack = HandlerStack::create(new MockHandler([
+        new GetPromptResponse(),
+    ]));
+    $sentQuery = null;
+    captureSentQuery($handlerStack, $sentQuery);
+
+    (new Langfuse(new HttpTransporter(new Client(['handler' => $handlerStack])), label: 'production'))
+        ->prompt()
+        ->text('general_instructions', 7);
+
+    // The API answers 400 "Cannot specify both version and label" when both are
+    // present, so the default label must not accompany a versioned request.
+    expect($sentQuery)->toBe('version=7');
+});
+
+it('sends only the version when a version is given for a chat prompt', function (): void {
+    $handlerStack = HandlerStack::create(new MockHandler([
+        new GetChatPromptResponse(),
+    ]));
+    $sentQuery = null;
+    captureSentQuery($handlerStack, $sentQuery);
+
+    (new Langfuse(new HttpTransporter(new Client(['handler' => $handlerStack])), label: 'production'))
+        ->prompt()
+        ->chat('chat_prompt', 3);
+
+    expect($sentQuery)->toBe('version=3');
+});
+
+it('sends the default label when no version is given', function (): void {
+    $handlerStack = HandlerStack::create(new MockHandler([
+        new GetPromptResponse(),
+    ]));
+    $sentQuery = null;
+    captureSentQuery($handlerStack, $sentQuery);
+
+    (new Langfuse(new HttpTransporter(new Client(['handler' => $handlerStack])), label: 'production'))
+        ->prompt()
+        ->text('general_instructions');
+
+    expect($sentQuery)->toBe('label=production');
+});
+
+it('sends an explicitly passed label when no version is given', function (): void {
+    $handlerStack = HandlerStack::create(new MockHandler([
+        new GetPromptResponse(),
+    ]));
+    $sentQuery = null;
+    captureSentQuery($handlerStack, $sentQuery);
+
+    (new Langfuse(new HttpTransporter(new Client(['handler' => $handlerStack])), label: 'production'))
+        ->prompt()
+        ->text('general_instructions', null, 'staging');
+
+    expect($sentQuery)->toBe('label=staging');
+});
+
+it('still sends both when the caller explicitly passes a version and a label', function (): void {
+    $handlerStack = HandlerStack::create(new MockHandler([
+        new GetPromptResponse(),
+    ]));
+    $sentQuery = null;
+    captureSentQuery($handlerStack, $sentQuery);
+
+    // A deliberate opt-in stays untouched: the caller gets the 400 back rather than
+    // having their arguments silently rewritten.
+    (new Langfuse(new HttpTransporter(new Client(['handler' => $handlerStack])), label: 'production'))
+        ->prompt()
+        ->text('general_instructions', 7, 'staging');
+
+    expect($sentQuery)->toBe('version=7&label=staging');
 });
