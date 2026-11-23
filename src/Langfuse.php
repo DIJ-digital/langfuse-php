@@ -13,6 +13,7 @@ class Langfuse
         private readonly string $environment = 'default',
         private readonly string $label = 'latest',
         private readonly string $version = '',
+        private readonly string $serviceName = 'unknown_service:php',
     ) {
     }
 
@@ -32,13 +33,13 @@ class Langfuse
         );
     }
 
-    public function otelIngestion(string $serviceName = 'unknown_service:php'): OtelIngestion
+    public function otelIngestion(): OtelIngestion
     {
         return new OtelIngestion(
             transporter: $this->transporter,
             environment: $this->environment,
             version: $this->version,
-            serviceName: $serviceName,
+            serviceName: $this->serviceName,
         );
     }
 

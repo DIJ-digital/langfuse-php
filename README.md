@@ -64,6 +64,7 @@ $langfuse = new Langfuse(
     ])),
     environment: 'production', // optional, defaults to 'default'
     version: '1.0.0',         // optional, attached to OTel spans
+    serviceName: 'my-app',    // optional, OTel service.name, defaults to 'unknown_service:php'
 );
 ```
 
@@ -195,7 +196,7 @@ It follows the OpenTelemetry span lifecycle: `trace()`, `span()` and `generation
 ```php
 use DIJ\Langfuse\PHP\Enums\ObservationLevel;
 
-$otel = $langfuse->otelIngestion(serviceName: 'weather-app');
+$otel = $langfuse->otelIngestion();
 
 $trace = $otel->trace(
     name: 'handle-request',
@@ -295,7 +296,7 @@ $langfuse->score()->delete('score-id-123');
 ### Architecture
 
 ```
-Langfuse(transporter, environment?, version?)
+Langfuse(transporter, environment?, label?, version?, serviceName?)
 ├── prompt()                → Prompt
 │                                 ├── text()     → TextPromptResponse|FallbackPrompt
 │                                 ├── chat()     → ChatPromptResponse|FallbackPrompt

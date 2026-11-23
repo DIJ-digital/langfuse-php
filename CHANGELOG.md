@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Follows the OTel span lifecycle: `trace()` / `span()` / `generation()` start an observation, `update()` changes it, `end()` exports it once
 - **Deterministic IDs** — `OtelIngestion::traceId($seed)` and `OtelIngestion::spanId($seed)`, so one trace can span several processes
 - **Levels** — `ObservationLevel` enum; `ERROR` is exported as OTel status `ERROR` with the status message
-- **Version** — `Langfuse` constructor accepts a `$version` parameter, attached to OTel spans
+- **Version and service name** — `Langfuse` constructor accepts `$version` and `$serviceName`, attached to OTel spans
 
 ### Changed
 - PHP 8.3 support: removed property hooks from `Ingestion\Trace`, `Ingestion\Span` and `Ingestion\Generation` (`$id` is still readable)

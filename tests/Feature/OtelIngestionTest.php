@@ -341,8 +341,8 @@ it('creates OtelIngestion from Langfuse with its environment and version', funct
     $stack->push(Middleware::history($history));
     $client = new Client(['base_uri' => 'https://example.test', 'handler' => $stack]);
 
-    (new Langfuse(new HttpTransporter($client), environment: 'production', version: '2.0.0'))
-        ->otelIngestion(serviceName: 'my-app')
+    (new Langfuse(new HttpTransporter($client), environment: 'production', version: '2.0.0', serviceName: 'my-app'))
+        ->otelIngestion()
         ->trace(name: 'run')
         ->end();
 
