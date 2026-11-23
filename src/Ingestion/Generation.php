@@ -21,10 +21,10 @@ class Generation
     /**
      * Update this generation.
      *
-     * @param  array<string, mixed>|string|null  $input
-     * @param  array<string, mixed>|string|null  $output
-     * @param  array<string, mixed>|null  $modelParameters
-     * @param  array<string, mixed>|null  $metadata
+     * @param array<string, mixed>|string|null $input
+     * @param array<string, mixed>|string|null $output
+     * @param array<string, mixed>|null $modelParameters
+     * @param array<string, mixed>|null $metadata
      */
     public function update(
         array|string|null $input = null,

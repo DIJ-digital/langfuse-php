@@ -188,63 +188,80 @@ $trace->update(output: 'It is 22 degrees and sunny.');
 
 #### OpenTelemetry Ingestion
 
-An alternative ingestion path that posts spans to Langfuse's OTLP/HTTP JSON endpoint (`/api/public/otel/v1/traces`) using the standard `ExportTraceServiceRequest` format.
+Posts spans to Langfuse's OTLP/HTTP JSON endpoint (`/api/public/otel/v1/traces`). Langfuse Cloud no longer accepts traces, spans or generations on the v2 ingestion endpoint, so use this for tracing. `ingestion()` keeps working unchanged for self-hosted instances that still accept it.
 
-The API mirrors the standard ingestion, but uses OTel conventions: traces become root spans, child observations become child spans with `parentSpanId`, and all Langfuse fields are mapped to `langfuse.*` span attributes.
+It follows the OpenTelemetry span lifecycle: `trace()`, `span()` and `generation()` start an observation, `update()` changes it locally, and `end()` exports it once. Nothing is sent before `end()`, and an observation that is never ended is never exported.
 
 ```php
-$otel = $langfuse->otelIngestion();
+use DIJ\Langfuse\PHP\Enums\ObservationLevel;
 
-// Create a trace (root OTel span)
+$otel = $langfuse->otelIngestion(serviceName: 'weather-app');
+
 $trace = $otel->trace(
     name: 'handle-request',
     userId: 'user-123',
     sessionId: 'sess-456',
     input: 'What is the weather?',
     tags: ['production', 'weather'],
-    public: true,
-    release: 'v2.1.0',
 );
 
-// Create a child span
 $span = $trace->span(name: 'web-search', input: ['query' => 'weather today']);
+$span->update(output: ['results' => 3]);
+$span->end();
 
-// Create a generation (LLM call)
-$gen = $span->generation(
+$generation = $trace->generation(
     name: 'summarize',
     input: 'Summarize the weather data',
-    output: 'It is 22 degrees and sunny.',
     model: 'gpt-4o',
     modelParameters: ['temperature' => 0.7],
     promptName: 'weather-summary',
     promptVersion: 2,
 );
+$generation->update(output: 'It is 22 degrees and sunny.', usageDetails: ['input' => 120, 'output' => 12]);
+$generation->end();
 
-// Update observations
-$span->update(output: ['results' => 3], endTime: '2025-06-01T12:00:00+00:00');
-$gen->update(output: 'Updated summary', model: 'gpt-4o-mini');
 $trace->update(output: 'It is 22 degrees and sunny.');
+$trace->end();
 ```
 
-The OTel ingestion maps the following `langfuse.*` attributes:
+Mark a failed observation with `update(level: ObservationLevel::ERROR, statusMessage: '...')`; it is exported with OTel status `ERROR`. Otherwise the status stays unset.
+
+Trace-level attributes (name, user, session, tags, release, public, trace metadata), the environment and the version are copied onto every child observation, so you can filter observations by them.
+
+To build one trace across several processes (for example queued jobs), derive the IDs from a stable seed. Exporting the same root span from another process upserts the trace.
+
+```php
+$traceId = OtelIngestion::traceId(seed: 'run-42');
+$rootSpanId = OtelIngestion::spanId(seed: 'run-42');
+
+$otel->trace(name: 'run', traceId: $traceId, spanId: $rootSpanId, startTime: $runStartedAt)->end();
+
+$step = $otel->span(traceId: $traceId, parentSpanId: $rootSpanId, name: 'step-1', spanId: OtelIngestion::spanId(seed: 'step-1'));
+$step->end();
+```
+
+Trace IDs must be 32 and span IDs 16 lowercase hex characters; anything else throws an `InvalidArgumentException`. Times are ISO 8601 strings and default to now.
 
 | Langfuse field | OTel attribute |
 |---|---|
 | Trace name | `langfuse.trace.name` |
 | User ID | `langfuse.user.id` |
 | Session ID | `langfuse.session.id` |
-| Trace input/output | `langfuse.trace.input` / `langfuse.trace.output` |
+| Trace input/output | root observation input/output and `langfuse.trace.input` / `langfuse.trace.output` |
 | Tags | `langfuse.trace.tags` |
 | Public | `langfuse.trace.public` |
 | Release | `langfuse.release` |
 | Metadata | `langfuse.trace.metadata.<key>` / `langfuse.observation.metadata.<key>` |
 | Observation type | `langfuse.observation.type` |
 | Observation input/output | `langfuse.observation.input` / `langfuse.observation.output` |
+| Level / status message | `langfuse.observation.level` / `langfuse.observation.status_message` |
 | Model | `langfuse.observation.model.name` |
 | Model parameters | `langfuse.observation.model.parameters` |
+| Usage | `langfuse.observation.usage_details` |
 | Prompt | `langfuse.observation.prompt.name` / `langfuse.observation.prompt.version` |
 | Environment | `langfuse.environment` |
 | Version | `langfuse.version` |
+| Service | resource attribute `service.name` |
 
 #### Scores
 
@@ -297,16 +314,10 @@ Langfuse(transporter, environment?, version?)
 │                             └── generation() → Generation
 │                                                 └── update()
 ├── otelIngestion()         → OtelIngestion
-│                             ├── trace()      → OtelTrace
-│                             │                   ├── update()
-│                             │                   ├── span()       → OtelSpan
-│                             │                   └── generation() → OtelGeneration
-│                             ├── span()       → OtelSpan
-│                             │                   ├── update()
-│                             │                   ├── span()       → OtelSpan
-│                             │                   └── generation() → OtelGeneration
-│                             └── generation() → OtelGeneration
-│                                                 └── update()
+│                             ├── trace()      → OtelIngestion\Trace
+│                             ├── span()       → OtelIngestion\Span
+│                             └── generation() → OtelIngestion\Generation
+│                                                 each has update(), span(), generation() and end()
 └── score()                 → Score
                               ├── create()
                               ├── get()
@@ -314,5 +325,5 @@ Langfuse(transporter, environment?, version?)
                               └── delete()
 ```
 
-Each `trace()`, `span()`, `generation()`, and `update()` call sends a request to the Langfuse `POST /api/public/ingestion` endpoint immediately. OTel ingestion posts to `POST /api/public/otel/v1/traces`.
+Each `trace()`, `span()`, `generation()`, and `update()` call sends a request to the Langfuse `POST /api/public/ingestion` endpoint immediately. OTel ingestion posts to `POST /api/public/otel/v1/traces` once per `end()`.
 **Langfuse PHP** was created by **[Tycho Engberink](https://github.com/tychoengberinkDIJ)** and is maintained by **[DIJ Digital](https://dij.digital)** under the **[MIT license](https://opensource.org/licenses/MIT)**.

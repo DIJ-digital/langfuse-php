@@ -13,7 +13,8 @@ class Langfuse
         private readonly string $environment = 'default',
         private readonly string $label = 'latest',
         private readonly string $version = '',
-    ) {}
+    ) {
+    }
 
     public function prompt(): Prompt
     {
@@ -31,12 +32,13 @@ class Langfuse
         );
     }
 
-    public function otelIngestion(): OtelIngestion
+    public function otelIngestion(string $serviceName = 'unknown_service:php'): OtelIngestion
     {
         return new OtelIngestion(
             transporter: $this->transporter,
             environment: $this->environment,
             version: $this->version,
+            serviceName: $serviceName,
         );
     }
 
