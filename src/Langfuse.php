@@ -12,6 +12,8 @@ class Langfuse
         private readonly TransporterInterface $transporter,
         private readonly string $environment = 'default',
         private readonly string $label = 'latest',
+        private readonly string $version = '',
+        private readonly string $serviceName = 'unknown_service:php',
     ) {
     }
 
@@ -28,6 +30,16 @@ class Langfuse
         return new Ingestion(
             transporter: $this->transporter,
             environment: $this->environment,
+        );
+    }
+
+    public function otelIngestion(): OtelIngestion
+    {
+        return new OtelIngestion(
+            transporter: $this->transporter,
+            environment: $this->environment,
+            version: $this->version,
+            serviceName: $this->serviceName,
         );
     }
 

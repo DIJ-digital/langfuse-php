@@ -8,14 +8,13 @@ use DIJ\Langfuse\PHP\Ingestion;
 
 class Trace
 {
-    public string $id {
-        get => $this->traceId;
-    }
+    public readonly string $id;
 
     public function __construct(
         public readonly string $traceId,
         private readonly Ingestion $ingestion,
     ) {
+        $this->id = $this->traceId;
     }
 
     /**

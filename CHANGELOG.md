@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.3.0] OpenTelemetry Ingestion - 2026-11-23
+
+### Added
+- **OpenTelemetry ingestion** — `$langfuse->otelIngestion()` exports traces, spans and generations to `POST /api/public/otel/v1/traces` (OTLP/HTTP JSON). Langfuse Cloud stopped accepting trace, span and generation events on the v2 ingestion endpoint on 2026-11-16
+- Follows the OTel span lifecycle: `trace()` / `span()` / `generation()` start an observation, `update()` changes it, `end()` exports it once
+- **Deterministic IDs** — `OtelIngestion::traceId($seed)` and `OtelIngestion::spanId($seed)`, so one trace can span several processes
+- **Levels** — `ObservationLevel` enum; `ERROR` is exported as OTel status `ERROR` with the status message
+- **Version and service name** — `Langfuse` constructor accepts `$version` and `$serviceName`, attached to OTel spans
+
+### Changed
+- PHP 8.3 support: removed property hooks from `Ingestion\Trace`, `Ingestion\Span` and `Ingestion\Generation` (`$id` is still readable)
+- `ingestion()` is unchanged and still posts to `/api/public/ingestion`
+
+### Fixed
+- `postJson()` and `patchJson()` replace invalid UTF-8 instead of sending an empty body
+
 ## [0.2.0] Scores, Ingestion Rewrite & Prompt Enhancements - 2026-02-19
 
 ### Added

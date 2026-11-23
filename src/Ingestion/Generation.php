@@ -8,15 +8,14 @@ use DIJ\Langfuse\PHP\Ingestion;
 
 class Generation
 {
-    public string $id {
-        get => $this->generationId;
-    }
+    public readonly string $id;
 
     public function __construct(
         public readonly string $generationId,
         public readonly string $traceId,
         private readonly Ingestion $ingestion,
     ) {
+        $this->id = $this->generationId;
     }
 
     /**

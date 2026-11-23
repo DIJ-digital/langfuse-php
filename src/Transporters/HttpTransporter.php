@@ -78,7 +78,7 @@ class HttpTransporter implements TransporterInterface
 
     public function postJson(string $uri, array $data = [], array $options = []): ResponseInterface
     {
-        return $this->request('POST', $uri, array_merge(['body' => json_encode($data)], array_merge(['headers' => ['Content-Type' => 'application/json']], $options)));
+        return $this->request('POST', $uri, array_merge(['body' => json_encode($data, JSON_INVALID_UTF8_SUBSTITUTE)], array_merge(['headers' => ['Content-Type' => 'application/json']], $options)));
     }
 
     /**
@@ -111,6 +111,6 @@ class HttpTransporter implements TransporterInterface
      */
     public function patchJson(string $uri, array $data = [], array $options = []): ResponseInterface
     {
-        return $this->request('PATCH', $uri, array_merge(['body' => json_encode($data)], array_merge(['headers' => ['Content-Type' => 'application/json']], $options)));
+        return $this->request('PATCH', $uri, array_merge(['body' => json_encode($data, JSON_INVALID_UTF8_SUBSTITUTE)], array_merge(['headers' => ['Content-Type' => 'application/json']], $options)));
     }
 }

@@ -8,15 +8,14 @@ use DIJ\Langfuse\PHP\Ingestion;
 
 class Span
 {
-    public string $id {
-        get => $this->spanId;
-    }
+    public readonly string $id;
 
     public function __construct(
         public readonly string $spanId,
         public readonly string $traceId,
         private readonly Ingestion $ingestion,
     ) {
+        $this->id = $this->spanId;
     }
 
     /**
